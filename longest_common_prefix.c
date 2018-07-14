@@ -29,7 +29,6 @@ longestCommonPrefix1(char **strs, int strsSize) {
  */
 char *
 longestCommonPrefix(char **strs, int strsSize) {
-  int count[26] = {0};  /* 统计每个字符出现的次数 */
   int i, j;
   char c;
 
@@ -37,24 +36,15 @@ longestCommonPrefix(char **strs, int strsSize) {
     return *strs;
 
   for(j = 0; ; ++j) {
-    for (i = 0; i < strsSize; ++i) {
-      if ((c = strs[i][j]) != 0)
-        count[c - 'a'] += 1;
-      else
+    c = strs[0][j];
+    for (i = 1; i < strsSize; ++i) {
+      /* 字符串结束或者与上个字符同列的字符不等 */
+      if (strs[i][j] == 0 || c != strs[i][j]) {
+        strs[i][j] = 0;
         return strs[i];
-
-      if (i == strsSize - 1) {
-        if (count[c - 'a'] < strsSize) {
-          strs[i][j] = 0;
-          return strs[i];
-        } else {
-          count[c - 'a'] = 0;
-        }
       }
     }
   }
-
-  return NULL;
 }
 
 int
