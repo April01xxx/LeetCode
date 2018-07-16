@@ -95,12 +95,8 @@ threeSum(int *nums, int numsSize, int *returnSize) {
     sum = -nums[i];
     for (j = i + 1, k = numsSize - 1; j < k; ) {
       if (nums[j] + nums[k] < sum) {
-        while (nums[j + 1] == nums[j])
-          ++j;
         ++j;
       } else if (nums[j] + nums[k] > sum) {
-        while (nums[k - 1] == nums[k])
-          --k;
         --k;
       } else {
         /* found */
