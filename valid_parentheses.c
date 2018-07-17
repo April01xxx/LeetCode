@@ -79,6 +79,8 @@ isValid(char *s) {
   if (isEmpty(stack)) {
     disposeStack(stack);
     return true;
-  } else
+  } else {
+    disposeStack(stack);
     return false;
+  }
 }
