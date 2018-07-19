@@ -27,16 +27,10 @@ mergeTwoLists(struct ListNode *l1, struct ListNode* l2) {
     }
   }
 
-  while (l1) {
+  if (l1)
     node->next = l1;
-    node = l1;
-    l1 = l1->next;
-  }
-  while (l2) {
+  if (l2)
     node->next = l2;
-    node = l2;
-    l2 = l2->next;
-  }
 
   return head;
 }
