@@ -16,7 +16,7 @@
  * 前滑动一位,即比较pattern[2]与S[m + 8]是否相等.(lps[2] = 2)
  *
  * 所谓真前缀(proper prefix)是指不包含整个字符串的前缀,例如字符串"ABCD",其真
- * 前缀是"","A","AB","ABC",不包含"ABCD",真后缀(proper suffix)同理.另lps[i]
+ * 前缀是"","A","AB","ABC",不包含"ABCD",真后缀(proper suffix)同理.令lps[i]
  * 表示模式patter的子串pattern[0:i]的既是真前缀也是真后缀的最大长度,例如子串
  * pattern[0:2]的lps[2]为2,而pattern[0:3]的lps[3]为0.根据lps的定义,我们有:
  * 1.若pattern[i + 1] = pattern[lps[i]],则lps[i + 1] = lps[i] + 1;
