@@ -65,12 +65,12 @@ pop(Stack s) {
 
 struct ListNode *
 reverseKGroup(struct ListNode *head, int k) {
-  struct ListNode *h, *t;
+  struct ListNode h, *t;
   Stack s;
   int size;
 
-  h = t = malloc(sizeof(struct ListNode));
-  h->next = t->next = head;
+  t = &h;
+  t->next = head;
   size = k;
   s = createStack(size);
   while (head) {
@@ -87,11 +87,9 @@ reverseKGroup(struct ListNode *head, int k) {
     }
   }
 
-  head = h->next;
-  free(h);
   disposeStack(s);
 
-  return head;
+  return h.next;
 }
 
 int
