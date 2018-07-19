@@ -14,20 +14,6 @@ const char *dict[] = {
 };
 
 /**
- * 递归实现:深度优先搜索.
- */
-const char *dict[] = {
-    "abc",
-    "def",
-    "ghi",
-    "jkl",
-    "mno",
-    "pqrs",
-    "tuv",
-    "wxyz"
-};
-
-/**
  * 递归:深度优先搜索.
  */
 void
