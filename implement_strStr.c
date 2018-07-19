@@ -71,13 +71,15 @@ strStr(char *haystack, char *needle) {
     return -1;
   if (*needle == 0)
     return 0;
-  if (strlen(haystack) == strlen(needle) &&
-      strcmp(haystack, needle) == 0)
-    return 0;
+  if (strlen(haystack) == strlen(needle)) {
+    if (strcmp(haystack, needle) == 0)
+      return 0;
+    else
+      return -1;
+  }
 
   len = strlen(needle);
   lps = malloc(len * sizeof(int));
-  *lps = 0;
   preProcess(needle, lps);
 
   i = j = 0;
