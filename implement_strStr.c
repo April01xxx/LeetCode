@@ -61,6 +61,36 @@ preProcess(char *pattern, int *lps) {
   }
 }
 
+/**
+ * 优化后的KMP lps计算.
+ * 1. preProcess的50-59行代码的逻辑与整个外层for循环的逻辑是一致的,都是寻找
+ *    既是真前缀又是真后缀的最大长度,但内层循环的查找是逐字符比较,并未充分利用
+ *    之前已经计算好的lps的值,故整个逻辑可以合并到外层循环.
+ * 2. 合并到外层循环之后需要考虑边界情况,若j=0了,此时lps[i] = lps[j] = 0,然后
+ *    递增下标i,开始计算下个位置的lps.
+ * 3. 计算匹配模式的lps的代码与在字符串中寻找匹配的模式的代码非常相似!!因为其
+ *    思想都是一致的.
+ */
+void
+kmpTable(char *needle, int *table) {
+  int i, j, len;
+
+  i = 1;
+  *lps = 0;
+  j = lps[0];
+  len = strlen(needle);
+  while (i < len) {
+    if (needle[i] == needle[j]) {
+      table[i++] = j++;
+    } else {
+      if (j != 0)
+        j = lps[j - 1];
+      else
+        lps[i++] = 0;
+    }
+  }
+}
+
 int
 strStr(char *haystack, char *needle) {
   int *lps;
