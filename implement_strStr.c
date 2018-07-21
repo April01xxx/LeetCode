@@ -76,17 +76,17 @@ kmpTable(char *needle, int *table) {
   int i, j, len;
 
   i = 1;
-  *lps = 0;
-  j = lps[0];
+  *table = 0;
+  j = table[0];
   len = strlen(needle);
   while (i < len) {
     if (needle[i] == needle[j]) {
       table[i++] = j++;
     } else {
       if (j != 0)
-        j = lps[j - 1];
+        j = table[j - 1];
       else
-        lps[i++] = 0;
+        table[i++] = 0;
     }
   }
 }
