@@ -63,11 +63,12 @@ searchRange(int *nums, int numsSize, int target, int *returnSize) {
  *
  * 有几种边界情况需要考虑:
  * 1. 若整个数组中不存在target,若target小于nums[0],则最终返回下标为0,否则
- *    返回下标为numsSize - 1.
+ *    返回下标为调用binary_search时的入参right.
  * 2. 若整个数组中只有一个target,则向左搜索的部分最终返回的恰好是target的
  *    下标.向右搜索的时候,第一次找到了target,left移动到target的下一个位置,
  *    此后每个center处若nums[center] > target,这会导致right不断向左移动,
- *    若nums[center]==target,这会导致left右移,直至right==left.
+ *    若nums[center]==target,这会导致left右移,直至right==left.最终left
+ *    指向第一个不等于target的元素.
  */
 int
 binary_search(int *nums, int left, int right, int target, int goon) {
