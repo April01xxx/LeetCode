@@ -99,17 +99,24 @@ searchRange(int *nums, int numsSize, int target, int *returnSize) {
   result = (int *)malloc(2 * sizeof(int));
   /**
    * 这里解释一下为什么调用binary_search时right参数送numsSize而不是numsSize-1.
-   * 若送numsSize-1,则向左搜索时,无论target是否在数组中,返回的下标均在有效
-   * 范围内;向右搜索时,若数组的元素个数小于等于2,例如[2],[1,1]这样的情况,若
-   * target恰好在数组中,那么返回的下标需要特殊处理.因为binary_search向右搜索返回
-   * 的是不等于target的下一个下标.
-   * 若nums=[2],target=2,向左搜索返回pos=0,向右搜索返回的pos也为0(numsSize-1),
-   * 此时需要特殊处理返回值;
-   * 若nums=[1,1],target=1,向左搜索返回pos=0,向右搜索返回pos为1,此时也需要特殊处理.
-   *
-   * 若送numsSize,则在向左搜索的过程中要判断target>nums[numsSize-1]而导致返回
-   * 值为numsSize的情况.
+   * 若送numsSize-1,且nums[numsSize - 1] == target, 此时向右搜索返回的值并
+   * 不是大于target的下一个下标(因为返回值不可能超过right),你需要对这种情况进行
+   * 特殊处理.当然了,如果送numsSize-1,那么向左搜索的返回值不需要判断是否等于
+   * numsSize.如果送numsSize-1,以下代码应该这么写:
+   * 
+   * pos = binary_search(nums, 0, numsSize - 1, target, 1);
+   * if (nums[pos] != target) {
+   *   result[0] = result[1] = -1;
+   *   return result;
+   * }
+   * result[0] = pos;
+   * pos = binary_search(nums, pos, numsSize - 1, target, 0);
+   * if (nums[pos] != target)
+   *   pos -= 1;
+   * result[1] = pos;
+   * return result;
    */
+  
   pos = binary_search(nums, 0, numsSize, target, 1);
   if (pos == numsSize || nums[pos] != target) {
     result[0] = result[1] = -1;
