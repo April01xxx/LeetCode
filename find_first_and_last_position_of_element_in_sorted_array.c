@@ -124,9 +124,6 @@ searchRange(int *nums, int numsSize, int target, int *returnSize) {
   }
 
   result[0] = pos;
-  /**
-   * 对于数组元素小于等于2个的情况,
-   */
   result[1] = binary_search(nums, pos, numsSize, target, 0) - 1;
   return result;
 }
