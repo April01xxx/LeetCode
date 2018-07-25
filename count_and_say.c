@@ -1,5 +1,5 @@
 /**
- * The count-and-say sequence is the sequence of integers with the 
+ * The count-and-say sequence is the sequence of integers with the
  * first five terms as following:
  * 1. 1
  * 2. 11
@@ -22,32 +22,15 @@
  * "111221", => 3个1,2个2,1个1 => 312211.
  * 规律就是相同的元素作为整体描述,在描述时,元素的个数放在前面,所描述的元素放在
  * 后面,将这个描述用数字字符串表达就是结果.
+ *
+ * 此题比较麻烦的一点的动态内存的分配,仔细观察发现,用来描述现有字符串的字符串
+ * 长度不可能超过原字符串的两倍.而且连续的字符数不可能超过3个,出现的所有字符
+ * 只可能在'1','2','3'中出现.
  */
-void
-generate(int n, char *ans, int len) {
-  int i, count;
-  char count_str[20], digit_str[20];
-  char *ret = NULL;
-
-  if (n == 0)
-    return;
-  
-  for (i = 0; ans[i] != 0; ++i) {
-    count = 1;
-    while (ans[i + 1] != 0 && ans[i + 1] == ans[i])
-      ++count;
-    itoa(count, count_str, 10);
-    itoa(ans[i], digit_str, 10);
-    if (strlen(count_str) + strlen(digit_str) > len - strlen(ans))
-      ret = realloc(ret, 10 * len);
-
-  }
-}
-
 char *
 countAndSay(int n) {
-  char *ans;
-  int i;
+  char *ans, *tmp;
+  int i, j, k, count;
 
   if (n <= 0)
     return NULL;
@@ -56,4 +39,21 @@ countAndSay(int n) {
   ans[0] = '1';
   ans[1] = 0;
 
+  for (i = 1; i < n; ++i) {
+    tmp = (char *)malloc((2 * strlen(ans) + 1) * sizeof(char));
+    k = 0;
+    for (j = 0; ans[j] != 0; ++j) {
+      count = 1;
+      while (ans[j + 1] != 0 && ans[j + 1] == ans[j]) {
+        ++j;
+        ++count;
+      }
+      tmp[k++] = count + '0';
+      tmp[k++] = ans[j];
+    }
+    tmp[k] = 0;
+    free(ans);
+    ans = tmp;
+  }
+  return ans;
 }
