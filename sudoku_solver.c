@@ -17,7 +17,7 @@ typedef struct {
 
 bool
 fillBoard(char **board, int (*rows)[9][10], int (*cols)[9][10], 
-          int (*sub_box)[9][10], Point *fill, int left) {
+          int (*sub_box)[9][10], Point (*fill)[81], int left) {
   int digit, idx;
   Point p;
   bool ret;
@@ -25,7 +25,7 @@ fillBoard(char **board, int (*rows)[9][10], int (*cols)[9][10],
   if (left <= 0)
     return true;
 
-  p = fill[--left];
+  p = (*fill)[--left];
   /* 计算当前坐标属于哪个3x3矩阵. */
   idx = p.x / 3 * 3 + p.y / 3;
   for (digit = 1; digit <= 9; ++digit) {
