@@ -1,6 +1,6 @@
 /**
- * Given a collection of candidate numbers (candidates) and a target 
- * number (target),  find all unique combinations in candidates where 
+ * Given a collection of candidate numbers (candidates) and a target
+ * number (target),  find all unique combinations in candidates where
  * the candidate numbers sums to target.
  * Each number in candidates may only be used once in the combination.
  * Note:
@@ -47,6 +47,9 @@ findAll(int *candidates, int candidatesSize, int start, int count, int target,
     /* 每个元素只能被使用一次,故start应该是i+1. */
     findAll(candidates, candidatesSize, i + 1, count + 1, left, result,
             resultSize, columnSize, returnSize, temp);
+    /* 跳过相同的元素.*/
+    while (i < candidatesSize - 1 && candidates[i + 1] == candidates[i])
+      ++i;
   }
   temp[count] = 0;
 }
@@ -57,7 +60,7 @@ compare(void *a, void *b) {
 }
 
 int **
-combinationSum(int *candidates, int candidatesSize, int target,
+combinationSum2(int *candidates, int candidatesSize, int target,
                int **columnSize, int *returnSize) {
   int size;
   int **result, *colSize, *temp;
