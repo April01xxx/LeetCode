@@ -66,14 +66,14 @@ findAll(int *candidates, int candidatesSize, int start, int count, int target,
 int **
 combinationSum(int *candidates, int candidatesSize, int target,
                int **columnSize, int *returnSize) {
-  int i, left, size;
+  int size;
   int **result, *colSize, *temp;
 
   *returnSize = 0;
   temp = (int *)malloc(target * sizeof(int));
   size = candidatesSize;
   result = (int **)malloc(size * sizeof(int *));
-  colSize = (int *)malloc(size * sizeof(int ));
+  colSize = (int *)malloc(size * sizeof(int));
   findAll(candidates, candidatesSize, 0, 0, target, &result, &size,
           &colSize, returnSize, temp);
 
