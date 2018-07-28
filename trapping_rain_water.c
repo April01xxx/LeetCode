@@ -44,3 +44,38 @@ trap(int *height, int heightSize) {
 
   return area;
 }
+
+/**
+ * 仔细观察上面的解法,遍历了两趟来寻找局部极大值,实际上这个过程一趟遍历就可以
+ * 完成,用两个指针分别指向数组头和数组尾部,哪边小则哪边前进,在前进的过程中更新
+ * 面积.最终两个指针一定会在整个数组的最大值处相遇.
+ */
+int
+trap(int *height, int heightSize) {
+  int left, left_max, right, right_max;
+  int area;
+
+  left = 0, right = heightSize - 1;
+  left_max = 0, right_max = 0;
+  area = 0;
+  while (left < right) {
+    if (height[left] < height[right]) {
+      /* 因为left_max初始化为0,故找到大于left_max的元素时应该更新left_max,
+       * 而不是计算面积.
+       */
+      if (height[left] > left_max)
+        left_max = height[left];
+      else
+        area += left_max - height[left];
+      ++left;
+    } else {
+      if (height[right] > right_max)
+        right_max = height[right];
+      else
+        area += right_max - height[right];
+      --right;
+    }
+  }
+
+  return area;
+}
