@@ -21,7 +21,7 @@ trap(int *height, int heightSize) {
   for (i = 1; i < heightSize; ++i) {
     if (height[i] < max)
       sum += height[i];
-    if (height[i] >= max) {
+    else {
       area += max * (i - maxi) - sum;
       maxi = i;
       max = height[maxi];
@@ -34,7 +34,7 @@ trap(int *height, int heightSize) {
   for (i = heightSize - 2; i >= 0; --i) {
     if (height[i] <= max)
       sum += height[i];
-    if (height[i] > max) {
+    else {
       area += max * (maxi - i) - sum;
       maxi = i;
       max = height[maxi];
