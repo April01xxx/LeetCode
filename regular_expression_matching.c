@@ -119,7 +119,7 @@ isMatch(char *s, char *p) {
 
   len = strlen(s);
   ans = malloc((len + 1) * sizeof(bool));
-  memset(ans + 1, 0, len);
+  memset(ans + 1, 0, len * sizeof(bool));
   *ans = true;   /* ""(s[0:0]) matches "" */
 
   for ( ; *p != 0; ++p) {
