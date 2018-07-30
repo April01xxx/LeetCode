@@ -1,32 +1,32 @@
 bool
 isMatch(char *s, char *p) {
-    size_t slen, plen;
+  size_t slen, plen;
 
-    if (*p == 0)
-        return *s == 0;
+  if (*p == 0)
+    return *s == 0;
 
-    slen = strlen(s);
-    plen = strlen(p);
-    if (plen == 1)
-        return slen == 1 && (*s == *p || *p == '.');
+  slen = strlen(s);
+  plen = strlen(p);
+  if (plen == 1)
+    return slen == 1 && (*s == *p || *p == '.');
 
-    /* 长度大于1时,考虑后一个字符是否为'*' */
-    if (p[1] != '*')
-        return *s != 0 ? (*s == *p || *p == '.') && isMatch(s+1, p+1) : 0;
+  /* 长度大于1时,考虑后一个字符是否为'*' */
+  if (p[1] != '*')
+    return *s != 0 ? (*s == *p || *p == '.') && isMatch(s + 1, p + 1) : 0;
 
-    /* 如果后一个字符为'*',有两种情况要考虑:
-        1. 前一个字符不等,此时p应该从'*'后的字符开始,丢弃前面的模式,
-           而s不动;
-        2. 前一个字符相等,循环匹配前一个字符0次到多次(贪婪匹配)
-    */
-    while (*s != 0 && (*s == *p || *p == '.')) {
-        if (isMatch(s, p+2))    /* 模式匹配0次的情况 */
-            return 1;
-        ++s;    /* 模式匹配1次 */
-        /* 匹配任意次 */
-    }
-    /* 前一个模式匹配完成 */
-    return isMatch(s, p+2);
+  /* 如果后一个字符为'*',有两种情况要考虑:
+      1. 前一个字符不等,此时p应该从'*'后的字符开始,丢弃前面的模式,
+         而s不动;
+      2. 前一个字符相等,循环匹配前一个字符0次到多次(贪婪匹配)
+  */
+  while (*s != 0 && (*s == *p || *p == '.')) {
+    if (isMatch(s, p + 2))  /* 模式匹配0次的情况 */
+      return 1;
+    ++s;    /* 模式匹配1次 */
+    /* 匹配任意次 */
+  }
+  /* 前一个模式匹配完成 */
+  return isMatch(s, p + 2);
 }
 
 
@@ -142,4 +142,33 @@ isMatch(char *s, char *p) {
   result = ans[len];
   free(ans);
   return result;
+}
+
+/**
+ * 此题更直观的解法是递归.
+ * 在匹配的过程中,若发现模式的下一个字符是'*',则意味着当前待匹配的模式字符需要匹配0~n次,
+ * 此时开始递归,需要注意的是,每次递归的时候要检查两种情况,任意一种满足则意味着匹配成功:
+ *   1. 当前字符匹配成功,继续贪婪匹配;
+ *   2. 当前字符匹配失败,则将当前字符与下下个模式字符(星号后的字符)进行匹配;
+ * 若下一个字符不是星号,则逐字符匹配即可.
+ * 需要注意的是若s=""(空字符串),p="*",匹配结果应该为false,这是因为星号表示匹配前面出现
+ * 的字符0~n次,而此时星号前没有字符故无法匹配,若换成"a*"则能匹配成功.
+ */
+bool
+isMatch(char *s, char *p) {
+  size_t len1, len2;
+
+  if (s == NULL)
+    return false;
+
+  len1 = strlen(s);
+  len2 = strlen(p);
+
+  if (len2 == 0)
+    return len1 == 0;
+  if (len2 > 1 && p[1] == '*')
+    return (len1 > 0 && (s[0] == p[0] || p[0] == '.') && isMatch(s + 1, p)) ||
+           isMatch(s, p + 2);
+  else
+    return len1 > 0 && (s[0] == p[0] || p[0] == '.') && isMatch(s + 1, p + 1);
 }
