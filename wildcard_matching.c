@@ -69,7 +69,7 @@ isMatch(char *s, char *p) {
  * 2. 若模式p的当前字符是'*',分几种情况讨论:
  *    a. s[0] != p[1], 直接比较s[1]与p[1];
  *    b. s[0] == p[1], 匹配s[0]和p[1];
- * 此方法在LeetCode上会TLE.
+ * 此方法在LeetCode上会TLE.对于多个星号的情况下,递归层数太深.
  */
 bool
 isMatch(char *s, char *p) {
@@ -84,9 +84,55 @@ isMatch(char *s, char *p) {
   if (len2 == 0)
     return len1 == 0;
 
-  if (p[0] == '*')
-    return ((s[0] == p[1] || p[1] == '?' || p[1] == '*') && isMatch(s, p + 1)) ||
-           (len1 > 0 && isMatch(s + 1, p));
-  else
+  if (p[0] == '*') {
+    /* 跳过连续的星号'*'. */
+    while (p[1] == '*')
+      ++p;
+    while (*s) {
+      if ((s[0] == p[1] || p[1] == '?') && isMatch(s, p + 1))
+        return true;
+      ++s;
+    }
+    while (*p == '*')
+      ++p;
+    return *p == 0;
+  } else
     return len1 > 0 && (s[0] == p[0] || p[0] == '?') && isMatch(s + 1, p + 1);
+}
+
+/**
+ * 用循环改写上面的递归如下.
+ */
+bool
+isMatch(char *s, char *p) {
+  char *scurr, *pcurr, *sstar, *pstar;
+
+  scurr = s;
+  pcurr = p;
+  pstar = sstar = NULL;
+  while (*scurr) {
+    if (*scurr == *pcurr || *pcurr == '?') {
+      ++scurr;
+      ++pcurr;
+    } else if (*pcurr == '*') {
+      /* 遇到星号'*',此时应该记录下s和p当前指针位置,后续查找失败时回溯. */
+      pstar = pcurr++;
+      sstar = scurr;
+    } else if (pstar) {
+      /* 查找失败且前面出现过星号'*',则回溯. */
+      scurr = ++sstar;
+      pcurr = pstar + 1;
+    } else {
+      /* 没有出现过星号,又匹配失败则返回false. */
+      return false;
+    }
+  }
+
+  /**
+   * 执行到此处则表明s已经到字符串末尾,若此时p也执行字符串末尾或者后面都是星号,
+   * 则表明整个字符串匹配,否则失败.
+   */
+  while (*pcurr == '*')
+    ++pcurr;
+  return *pcurr == 0;
 }
