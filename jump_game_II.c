@@ -1,7 +1,7 @@
 /**
- * Given an array of non-negative integers, you are initially positioned at 
- * the first index of the array. Each element in the array represents your 
- * maximum jump length at that position. Your goal is to reach the last index 
+ * Given an array of non-negative integers, you are initially positioned at
+ * the first index of the array. Each element in the array represents your
+ * maximum jump length at that position. Your goal is to reach the last index
  * in the minimum number of jumps.
  *
  * Example:
@@ -76,4 +76,29 @@ jump(int *nums, int numsSize) {
   result = ans[0];
   free(ans);
   return result;
+}
+
+/**
+ * 此题存在O(n)的解法,那就是Greedy Algorithm.
+ * 因为题设假定一定能到达数组末尾,故对于每个元素,计算其能到达的最远的位置.
+ * 若最远的位置超过了数组长度,此时循环的次数即为解.
+ */
+int
+jump(int *nums, int numsSize) {
+  int i, step, left, right, next_right;
+
+  step = left = right = next_right = 0;
+  while (next_right < numsSize - 1) {
+    /**
+     * 对于每个元素计算其能到达的最远距离,若超过当前的最远距离则更新.
+     */
+    for (i = left; i <= right; ++i) {
+      if (i + nums[i] > next_right)
+        next_right = i + nums[i];
+    }
+    left = right + 1;
+    right = next_right;
+    ++step;
+  }
+  return step;
 }
