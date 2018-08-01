@@ -20,52 +20,24 @@
  *     [9,6,3]
  *   ]
  *
- * 将一个给定的矩阵就地(in-place)旋转90度,可以将矩阵看作由一圈一圈的元素组成的,
- * 从左上角开始顺时针数起,最外圈的元素是: 1,2,3,6,9,8,7,4,那么顺时针旋转90度就
- * 是将这一圈元素向右循环位移n位,n为边的长度减1.
- * 接下来的难点是如何获取到这样一圈元素的下标,在矩阵中某个位置用[i,j]表示,每一圈
- * 元素其下标都有一个取值范围,例如最外圈元素的取值范围是[0,N-1],里面一圈的范围是
- * [1,N-2],可以用一个变量direction来表示元素移动的方向: 右-1,下-2,左-3,上-4.根
- * 据元素下标的范围来改变方向.例如元素2起始下标[0,1],向右移动距离2变为[0,3],此时
- * 发现row未越界,而col越界,故方向向下,所以最终左边为[1,2].
+ * 将一个给定的矩阵就地(in-place)旋转90度,可以将矩阵看作由一圈一圈的元素组成,
+ * 对于上面的例子,从左上角开始按照顺时针计算,最外圈的元素是:1,2,3,6,9,8,7,4.
+ * 旋转时每一个点的移动会联动另外三个点的移动.
  */
 void
 rotate(int **matrix, int matrixRowSize, int *matrixColSizes) {
-  int begin, end, direction, i, j, circle;
+  int begin, end, temp, col, circle;
 
   circle = 0;
   while (circle < matrixRowSize / 2) {
     begin = circle;
     end = matrixRowSize - 1 - circle;
-    /**
-     * 题目要求顺时针旋转90度,为了减少不必要的元素交换,赋值时逆时针.
-     * 2 => 1 => 4 => 3.
-     */
-    direction = 2;
-    i = j = begin;
-    while (1) {
-      printf("%d ", matrix[i][j]);
-      if (direction == 1) {
-        ++j;
-        if (j == end)
-          direction = 4;
-      } else if (direction == 2) {
-        ++i;
-        if (i == end)
-          direction = 1;
-      } else if (direction == 3) {
-        --j;
-        if (j == begin)
-          direction = 2;
-      } else if (direction == 4) {
-        --i;
-        if (i == begin)
-          direction = 3;
-      }
-
-      /* 完整遍历一圈结束循环. */
-      if (i == begin && j == begin)
-        break;
+    for (col = begin; col < end; ++col) {
+      temp = matrix[begin][col];
+      matrix[begin][col] = matrix[matrixRowSize - 1 - col][begin];
+      matrix[matrixRowSize - 1 - col][begin] = matrix[end][matrixRowSize - 1 - col];
+      matrix[end][matrixRowSize - 1 - col] = matrix[col][end];
+      matrix[col][end] = temp;
     }
     ++circle;
   }
