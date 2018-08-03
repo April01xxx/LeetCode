@@ -26,7 +26,7 @@
  */
 void
 dfs(int x, int y, int z, int done, int mask1, int mask2, int *q) {
-  int col, pos, i;
+  int col, pos;
 
   if (x == done)
     ++*q;
