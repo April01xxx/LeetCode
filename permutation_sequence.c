@@ -1,6 +1,6 @@
 /**
  * The set [1,2,3,...,n] contains a total of n! unique permutations.
- * By listing and labeling all of the permutations in order, we get the 
+ * By listing and labeling all of the permutations in order, we get the
  * following sequence for n = 3:
  * 1. "123"
  * 2. "132"
@@ -80,39 +80,37 @@ getPermutation(int n, int k) {
  * 5. 只剩下一位数,故最终求得的排列是"45321".
  */
 void
-dfs(int n, int k, int factorial, int *used, int *digit, char *ans) {
+dfs(int n, int k, int factorial, int *digit, char *ans) {
   int quotient, remainder, i;
 
   if (n == 1) {
-    for (i = 0; used[i] != 0; ++i)
-      ;
-    *ans = digit[i] + '0';
+    *ans = digit[0] + '0';
+    return;
   }
 
   factorial /= n;
   quotient = k / factorial;
   remainder = k % factorial;
   if (remainder == 0) {
-
-  } else {
-    for (i = 0; i < ; ) {
-      if (used[i] == 0)
-        ++i;
-    }
-    *ans = digit[quotient]
+    remainder = factorial;
+    if (quotient > 0)
+      quotient -= 1;
   }
+  *ans = digit[quotient] + '0';
+  for (i = quotient; i < n - 1; ++i)
+    digit[i] = digit[i + 1];
+  dfs(n - 1, remainder, factorial, digit, ans + 1);
 }
 
 char *
 getPermutation(int n, int k) {
-  int factorial, i, quotient, remainder;
-  int *digit, *used;
+  int factorial, i;
+  int *digit;
   char *ans;
 
   ans = (char *)malloc((1 + n) * sizeof(char));
-  ans[0] = 0;
+  ans[n] = 0;
   digit = (int *)malloc(n * sizeof(int));
-  used = (int *)calloc(n, sizeof(int));
 
   factorial = 1;
   for (i = 0; i < n; ++i) {
@@ -120,8 +118,39 @@ getPermutation(int n, int k) {
     digit[i] = i + 1;
   }
 
-  dfs(n, k, factorial, used, digit, ans);
+  dfs(n, k, factorial, digit, ans);
 
   free(digit);
+  return ans;
+}
+
+/**
+ * 上面的做法对于任意的N和K均可以运算,题目中给出假设N的取值是[1,9].
+ * 可以采用查表法,这样省去了计算阶乘的开销,另外尾递归也可以用循环
+ * 改写.
+ */
+char *
+getPermutation(int n, int k) {
+  char *ans;
+  int FACTORIAL[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+  bool used[10] = {0};
+  int quotient, remainder, i, j;
+
+  ans = (char *)malloc((1 + n) * sizeof(char));
+  ans[n] = 0;
+
+  /* 序列的编号从0开始,这样处理起来方便点. */
+  remainder = k - 1;
+  for (i = n - 1; i >= 0; --i) {
+    quotient = remainder / FACTORIAL[i];
+    remainder %= FACTORIAL[i];
+    j = 0;
+    while (quotient >= 0) {
+      if (!used[j++])
+        --quotient;
+    }
+    used[j - 1] = 1;
+    ans[n - i - 1] = j + '0';
+  }
   return ans;
 }
