@@ -27,3 +27,39 @@ climbStairs(int n) {
   free(dp);
   return ans;
 }
+
+/**
+ * 仔细观察dp的状态方程发现,这就是一个Fibonacci数列,利用循环可以将空间
+ * 复杂度变为O(1).
+ */
+int
+climbStairs(int n) {
+  int i, first, second, ans;
+
+  if (n == 1)
+    return 1;
+
+  first = 1;
+  second = 2;
+  for (i = 3; i <= n; ++i) {
+    ans = first + second;
+    first = second;
+    second = ans;
+  }
+  return second;
+}
+
+/**
+ * 整个问题还存在优化的空间,关键在于Fibonacci数列的求解上.上述方法是线性
+ * 迭代,时间复杂度是O(n),利用矩阵的乘法可以将时间复杂度缩小到O(logn).
+ * 相关内容可以Google搜索Fast Fibonacci algorithms.这里简要说明一下:
+ * F(n) = F(n-1)+F(n-2),有以下矩阵关系式:
+ *  [ F(n+1) ]   [ F(n) + F(n-1)   ]    [ 1 1 ]   [ F(n)   ]
+ *  [ F(n)   ] = [ F(n) + 0*F(n-1) ] =  [ 1 0 ] * [ F(n-1) ]
+ *  迭代展开得到
+ *  [ F(n+1) ]   [ 1 1 ]^n   [ F(1) ]
+ *  [  F(n)  ] = [ 1 0 ]   * [ F(0) ]
+ * 故求解Fibonacci数列的第n项问题转化为求解矩阵的幂.在计算幂时可以利用
+ * 类似整数幂的计算方法优化,如n为偶数则计算pow(x*x, n/2),n为奇数计算
+ * pow(x, n-1)*x.
+ */
