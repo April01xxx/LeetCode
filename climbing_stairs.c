@@ -57,9 +57,52 @@ climbStairs(int n) {
  *  [ F(n+1) ]   [ F(n) + F(n-1)   ]    [ 1 1 ]   [ F(n)   ]
  *  [ F(n)   ] = [ F(n) + 0*F(n-1) ] =  [ 1 0 ] * [ F(n-1) ]
  *  迭代展开得到
- *  [ F(n+1) ]   [ 1 1 ]^n   [ F(1) ]
- *  [  F(n)  ] = [ 1 0 ]   * [ F(0) ]
+ *  [  F(n)   ]   [ 1 1 ]^n-1   [ F(1) ]
+ *  [  F(n-1) ] = [ 1 0 ]     * [ F(0) ]
  * 故求解Fibonacci数列的第n项问题转化为求解矩阵的幂.在计算幂时可以利用
  * 类似整数幂的计算方法优化,如n为偶数则计算pow(x*x, n/2),n为奇数计算
  * pow(x, n-1)*x.
  */
+void
+multiply(int a[2][2], int b[2][2], int c[2][2]) {
+  int i, j;
+  int tmp[2][2];
+  for (i = 0; i < 2; ++i) {
+    for (j = 0; j < 2; ++j)
+      tmp[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j];
+  }
+
+  for (i = 0; i < 2; ++i) {
+    for (j = 0; j < 2; ++j)
+      c[i][j] = tmp[i][j];
+  }
+}
+
+void
+matrixPow(int a[2][2], int n, int ans[2][2]) {
+  while (n > 0) {
+    if (n & 0x1)
+      multiply(ans, a, ans);
+    n >>= 1;
+    multiply(a, a, a);
+  }
+}
+
+int
+climbStairs(int n) {
+  int matrix[2][2] = {
+    {1, 1},
+    {1, 0}
+  };
+  /**
+   * 为了模拟整数幂的计算方法,这里构造一个矩阵使得其与matrix相乘
+   * 后等于matrix.
+   */
+  int ans[2][2] = {
+    {1, 0},
+    {0, 1}
+  };
+
+  matrixPow(matrix, n, ans);
+  return ans[0][0];
+}
