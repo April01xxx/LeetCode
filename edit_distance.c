@@ -54,3 +54,45 @@ minDistance(char *word1, char *word2) {
   free(dp);
   return ans;
 }
+
+/**
+ * Accept了看了下LeetCode讨论区,有篇解释非常清楚:
+ * https://leetcode.com/problems/edit-distance/discuss/25846
+ * 注意到dp的过程中每一步计算最多只用到了3个元素的值:
+ *                           A | B
+ *                          ___|___
+ *                           C | D
+ *                             |
+ * 当word1[i] == word2[j]时, D = A.
+ * 当word1[i] != word2[j]时, D = min(A, B, C) + 1.
+ * 故可以将空间开销缩减为O(n)或者O(m),取决于你是用列还是行.
+ */
+int
+minDistance(char *word1, char *word2) {
+  int *dp;
+  int len1, len2, i, j, corner, tmp, ans;
+
+  len1 = strlen(word1);
+  len2 = strlen(word2);
+
+  /* row = len1, col = len2. */
+  dp = (int *)malloc((1 + len2) * sizeof(int));
+  for (i = 0; i <= len2; ++i)
+    dp[i] = i;
+
+  for (i = 0; i < len1; ++i) {
+    corner = dp[0];
+    dp[0] = i + 1;
+    for (j = 0; j < len2; ++j) {
+      tmp = dp[j + 1];
+      if (word1[i] == word2[j])
+        dp[j + 1] = corner;
+      else
+        dp[j + 1] = min(min(dp[j + 1], dp[j]), corner) + 1;
+      corner = tmp;
+    }
+  }
+  ans = dp[len2];
+  free(dp);
+  return ans;
+}
