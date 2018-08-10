@@ -25,3 +25,25 @@ myPow(double x, int n) {
   else
     return myPow(x, n - 1) * x;
 }
+
+/**
+ * 用循环改写尾递归.
+ */
+double
+myPow(double x, int n) {
+  double ans = 1;
+  long ln = n;
+
+  if (n < 0) {
+    x = 1 / x;
+    ln = -ln;   /* ln = -n 这样的写法是错误的,若n=INT_MIN,得到错误的结果. */
+  }
+  while (ln != 0) {
+    if (ln & 0x1)
+      ans *= x;
+    x *= x;
+    ln >>= 1;
+  }
+
+  return ans;
+}
