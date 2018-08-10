@@ -66,6 +66,8 @@ minDistance(char *word1, char *word2) {
  * 当word1[i] == word2[j]时, D = A.
  * 当word1[i] != word2[j]时, D = min(A, B, C) + 1.
  * 故可以将空间开销缩减为O(n)或者O(m),取决于你是用列还是行.
+ * 另一篇相关内容,讲的是应用(计算机生物科学):
+ * https://www.cs.princeton.edu/courses/archive/fall14/cos126/assignments/sequence.html
  */
 int
 minDistance(char *word1, char *word2) {
