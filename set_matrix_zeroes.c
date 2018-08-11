@@ -53,3 +53,46 @@ setZeroes(int **matrix, int matrixRowSize, int matrixColSize) {
   }
   free(zero);
 }
+
+/**
+ * 上述解法的空间复杂度是O(m+n),仔细观察,若matrix[i][j]=0,则矩阵的i行j列
+ * 要被置为0,那么我们可以将matrix[0][j],matrix[i][0]置为0,这样就省去了空
+ * 间开销,但是对于第0行0列,没法区分,必须通过额外的变量来记录.
+ */
+void
+setZeroes(int **matrix, int matrixRowSize, int matrixColSize) {
+  int i, j, zeroRow = 0, zeroCol = 0;
+
+  for (i = 0; i < matrixRowSize; ++i) {
+    for (j = 0; j < matrixColSize; ++j) {
+      if (matrix[i][j] == 0) {
+        matrix[i][0] = matrix[0][j] = 0;
+        if (i == 0 && zeroRow == 0)
+          zeroRow = 1;
+        if (j == 0 && zeroCol == 0)
+          zeroCol = 1;
+      }
+    }
+  }
+
+  for (i = 1; i < matrixRowSize; ++i) {
+    if (matrix[i][0] == 0) {
+      for (j = 1; j < matrixColSize; ++j)
+        matrix[i][j] = 0;
+    }
+  }
+  for (j = 1; j < matrixColSize; ++j) {
+    if (matrix[0][j] == 0) {
+      for (i = 1; i < matrixRowSize; ++i)
+        matrix[i][j] = 0;
+    }
+  }
+  if (zeroRow == 1) {
+    for (j = 0; j < matrixColSize; ++j)
+      matrix[0][j] = 0;
+  }
+  if (zeroCol == 1) {
+    for (i = 0; i < matrixRowSize; ++i)
+      matrix[i][0] = 0;
+  }
+}
