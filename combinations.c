@@ -53,3 +53,45 @@ combine(int n, int k, int **columnSizes, int *returnSize) {
   free(tmp);
   return ans;
 }
+
+/**
+ * 此题还有一种十分巧妙的迭代解法.注意到是从n个数中选取k个数.以n=4,k=3来说明.
+ * 用一个数组来保存符合条件的结果,起始时: 0 0 0
+ * 第一次循环变为: 1 1 0
+ * 第二次循环变为: 1 2 2
+ * 第三次循环时找到满足条件是解: 1 2 3. 此时3小于4,继续循环得到: 1 2 4.
+ * 继续循环时发现4马上超过5,则改变地址前一位的值.如此循环直至第一位的值也大于n
+ * 则循环结束.
+ */
+int **
+combine(int n, int k, int **columnSizes, int *returnSize) {
+  int **ans = NULL, *col = NULL, *tmp;
+  int i;
+
+  *returnSize = 0;
+  tmp = (int *)calloc(k, sizeof(int));
+  i = 0;
+  while (i >= 0) {
+    ++tmp[i];
+
+    if (tmp[i] > n) {
+      /* 这一位已经增加到n了,不能继续增加,改为增加前一位. */
+      --i;
+    } else if (i == k - 1) {
+      /* 找到一个满足条件的解,记录下来. */
+      if (*returnSize % n == 0) {
+        ans = (int **)realloc(ans, (*returnSize + n) * sizeof(int *));
+        col = (int *)realloc(col, (*returnSize + n) * sizeof(int));
+      }
+      ans[*returnSize] = (int *)malloc(k * sizeof(int));
+      memcpy(ans[*returnSize], tmp, k * sizeof(int));
+      col[*returnSize] = k;
+      ++*returnSize;
+    } else {
+      ++i;
+      tmp[i] = tmp[i - 1];
+    }
+  }
+  *columnSizes = col;
+  return ans;
+}
