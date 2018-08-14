@@ -106,3 +106,42 @@ search(int *nums, int numsSize, int target) {
   }
   return -1;
 }
+
+/**
+ * 在LeetCode的讨论区看到一个非常棒的解法.给定一个升序排列数组,将其部分旋转后
+ * 如下: [4,5,6,7,0,1,2],我们不妨称nums[0]为旋转点,在整个数组未旋转时,nums[0]
+ * 将整个数组分为两部分,两部分都是升序排列的.现在我们要在旋转后的数组中查找目
+ * 标元素target,还是二分法,令lo,hi分别表示搜索的左右边界,mid为中间点.那么接下
+ * 来如何应用二分法呢?关键在于旋转点nums[0].
+ * 1. 若target和找到的中间元素nums[mid]都在nums[0]的"同一边":也就是说target和
+ * nums[mid]与nums[0]的大小关系是一样的.这意味着此时nums[mid]和target都位于
+ * 有序的数组内,此时应用二分法和普通情况没有区别.
+ * 2. 若target和nums[mid]与nums[0]的大小关系不一致,此时如何搜索呢?分情况讨论下:
+ *    a. 若target >= nums[0], 此时nums[mid] < nums[0].此时应向左搜索.
+ *    b. 若target < nums[0], 此时nums[mid] >= nums[0],此时应向右搜索.
+ * 为了编程简便,可以用一个标记来表示target和nums[mid]分别在nums[0]两边的情况下
+ * 应该搜索的方向.
+ */
+int
+search(int *nums, int numsSize, int target) {
+  double num;
+  int lo, hi, mid;
+
+  lo = 0, hi = numsSize - 1;
+  while (lo <= hi) {
+    mid = (lo + hi) / 2;
+
+    num = (target < nums[0]) == (nums[mid] < nums[0])
+          ? nums[mid]
+          : (target < nums[0]) ? LONG_MIN : LONG_MAX;
+
+    if (num == target)
+      return mid;
+    else if (num < target)
+      lo = mid + 1;
+    else
+      hi = mid - 1;
+  }
+
+  return -1;
+}
