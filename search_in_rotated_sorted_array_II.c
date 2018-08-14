@@ -1,7 +1,7 @@
 /**
- * Suppose an array sorted in ascending order is rotated at some pivot unknown 
+ * Suppose an array sorted in ascending order is rotated at some pivot unknown
  * to you beforehand. (i.e., [0,0,1,2,2,5,6] might become [2,5,6,0,0,1,2]).
- * You are given a target value to search. If found in the array return true, 
+ * You are given a target value to search. If found in the array return true,
  * otherwise return false.
  *
  * Example:
@@ -9,32 +9,62 @@
  * Output: true
  *
  * Follow up:
- * - This is a follow up problem to Search in Rotated Sorted Array, where nums 
+ * - This is a follow up problem to Search in Rotated Sorted Array, where nums
  *   may contain duplicates.
  * - Would this affect the run-time complexity? How and why?
  *
- * 另外一道Search in Rotated Sorted Array的升级版,这题的元素可能出现重复的,follow
- * up里面问到这是否会对时间复杂度产生影响.先来回顾下前一道题的解法,基本思路还是二分:
- * 1. 初始left=0,right=numsSize-1.若left<=right则循环,令center=(left+right)/2.
- *    比较nums[center]和target的大小,若整个数组是完全有序的情况下很简单:
- *    a. 若nums[center] == target,成功找到返回center;
- *    b. 若nums[center] > target,说明元素可能在左半边,此时令right=center,继续迭代;
- *    c. 若nums[center] < target,说明元素可能在右半边,此时令left=center+1,继续迭代;
- * 2. 在数组是部分旋转有序的情况下,上述判断是肯定不能完全套用的,需要修改:
- *    a. 若nums[center] == target,处理方式不变;
- *    b. 若nums[center] > target,此时不能简单的认为元素在左半边,要考虑旋转的情况,
- *       也就是要比较nums[left],nums[center],nums[right]和target的大小,但有一点
- *       是肯定的,那就是左半边或者右半边至少有一边是完全有序的.
- *       (1) 若nums[left] > nums[center],说明右半边是完全有序的,此时应搜索左半边;
- *       (2) 若nums[left] < nums[center],此时若nums[left] > target,则表明左半边
- *           的元素全部大于target,应搜索右半边;若nums[left] <= target,说明左半边
- *           可能有元素小于target.此时应搜索左边.
- *    c. 若nums[center] < target:
- *       (1) 若nums[right] < nums[center]说明左半边完全有序,此时应搜索右半边.
- *       (2) 若nums[right] > nums[center],此时若nums[right] >= target,则左
- *           半边不可能存在target.
- * 现在考虑存在重复元素的情况,当nums[center] == target时,处理方式不变.
- * 1. nums[center] > target.
- *    当nums[left] != nums[center]时,处理情况与不存在重复元素时一样.
- * 2. nums[center] < target.
+ * 另外一道Search in Rotated Sorted Array的升级版,这题的元素可能出现重复的,
+ * follow up里面问到这是否会对时间复杂度产生影响.先来回顾下前一道题的解法:
+ * 1. 旋转点nums[0]将整个数组分为两部分,两部分都是升序排列.
+ * 2. 二分查找,对于中点元素nums[mid]和target,比较它们和旋转点nums[0]的大小:
+ *    a. 若与nums[0]大小关系一样,采用普通二分查找即可;
+ *    b. 若target和nums[0]分别位于nums[0]的两边,此时根据target和nums[0]的
+ *       大小关系来判断搜索方向:若target小于nums[0]则向右搜索,否则向左搜索.
+ *
+ * 现在数组中可能存在重复元素,也就是说可能target等于nums[0]而nums[mid]却不等.
+ * 或者nums[mid]等于nums[0]而target不等.此时继续采用上述方法不能得到正确的结果.
+ *
+ * 我们注意到,没有重复元素的情况下,若nums[mid] < nums[hi],则说明mid分隔的右
+ * 半部分是有序的;若nums[mid] > nums[hi]则说明左半部分有序.
+ * 1. nums[mid] < nums[hi],右半部分有序.此时若nums[mid] > target,显然应该向
+ *    左搜索,若nums[mid] < target且nums[hi] < target,也应该向左搜索,其他情况
+ *    都应该向右搜索.
+ * 2. nums[mid] > nums[hi],左半部分有序.此时若nums[mid] < target,显然应该向
+ *    右搜索;若nums[mid] > target且nums[lo] > target,也应该向右搜索,其他情况
+ *    都应该向左搜索.
+ * 现在考虑有重复元素的情况,显然若nums[mid] != nums[hi]的话,上述结论仍然成立.
+ * 若nums[hi] == nums[mid]怎么办呢?
+ * 回到我们的问题本身是要查询target是否存在,既然数组中至少有两个nums[mid],那
+ * 么去掉一个(并非真正的去除,只是将其排除在我们的查找范围之外),对最终结果没影
+ * 响.处理的技巧是令hi = hi - 1.
  */
+bool
+search(int *nums, int numsSize, int target) {
+  int lo, hi, mid;
+
+  lo = 0, hi = numsSize - 1;
+  while (lo <= hi) {
+    mid = (lo + hi) / 2;
+
+    if (nums[mid] == target)
+      return true;
+    else if (nums[mid] < nums[hi]) {
+      /* 右半部分有序. */
+      if (nums[mid] < target && nums[hi] >= target)
+        lo = mid + 1;
+      else
+        hi = mid - 1;
+    } else if (nums[mid] > nums[hi]) {
+      /* 左半部分有序. */
+      if (nums[mid] > target && nums[lo] <= target)
+        hi = mid - 1;
+      else
+        lo = mid + 1;
+    } else {
+      /* nums[mid] == nums[hi]. 将nums[hi]排除在范围之外. */
+      --hi;
+    }
+  }
+
+  return false;
+}
