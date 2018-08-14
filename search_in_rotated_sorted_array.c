@@ -108,6 +108,38 @@ search(int *nums, int numsSize, int target) {
 }
 
 /**
+ * 上面方法的逻辑解释不够直观,换个角度考虑可能更清晰点,代码如下.
+ */
+int
+search(int *nums, int numsSize, int target) {
+  int lo, hi, mid;
+
+  lo = 0, hi = numsSize - 1;
+  while (lo <= hi) {
+    mid = (lo + hi) / 2;
+
+    if (nums[mid] == target)
+      return mid;
+    else if (nums[mid] < nums[hi]) {
+      /* 被mid分隔的右半部分是有序的. */
+      if (nums[mid] < target && nums[hi] >= target)
+        lo = mid + 1;
+      else
+        hi = mid - 1;
+    } else {
+      /* 被mid分隔的左半部分是有序的. */
+      if (nums[mid] > target && nums[lo] <= target)
+        hi = mid - 1;
+      else
+        lo = mid + 1;
+    }
+    /* 由于不存在重复元素,故nums[mid]不可能等于nums[hi]. */
+  }
+
+  return -1;
+}
+
+/**
  * 在LeetCode的讨论区看到一个非常棒的解法.给定一个升序排列数组,将其部分旋转后
  * 如下: [4,5,6,7,0,1,2],我们不妨称nums[0]为旋转点,在整个数组未旋转时,nums[0]
  * 将整个数组分为两部分,两部分都是升序排列的.现在我们要在旋转后的数组中查找目
