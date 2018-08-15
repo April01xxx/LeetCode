@@ -1,6 +1,6 @@
 /**
- * Given n non-negative integers representing the histogram's bar height 
- * where the width of each bar is 1, find the area of largest rectangle 
+ * Given n non-negative integers representing the histogram's bar height
+ * where the width of each bar is 1, find the area of largest rectangle
  * in the histogram.
  *
  * Example:
@@ -146,7 +146,122 @@ largestRectangleArea(int *heights, int heightsSize) {
 }
 
 /**
- * 还有一种解法也很巧妙,是利用栈来处理.观察整个数组,不难发现,若数组元素都是单调
- * 递增或者单调递减(简单来说就是有序的)情况下,问题很简单:如果是单调递增的,那最大
- * 的面积就是头部元素的值乘以元素个数.单调递减的情况类似.
+ * 上面的做法是通过两个单独的数组来记录每个元素的左右边界.这里还有另外一种做法:
+ * 通过单调栈来记录元素的左右边界.我们都知道栈是什么,一种后进先出的数据结构.所
+ * 谓单调栈就是栈里面的元素从某个顺序看过去都是单调的.利用这个特点,我们就可以
+ * 维护元素的左右边界.考虑数组[6,2,5,4,5,1,6].题目是要求最大的矩形面积.也就是
+ * 对于某个元素heights[i],向左找到第一个小于heights[i]的点l满足heights[l]小于
+ * heights[i],向右找到第一个点r满足heights[r]小于heights[i],那么此时形成的矩形
+ * 面积为:heights[i]*(r-l-1).到这里为止都是上面代码逻辑的解释.那么用单调栈怎么
+ * 处理呢?
+ * 1. 在计算面积时需要用到两元素间距,故栈里面存储的应该是元素的下标.
+ * 2. 既然是要寻找r,l使得heights[r]和heights[l]都小于heights[i],如果从栈底向栈
+ *    顶是递减的,那每次入栈时,栈顶元素小于heights[i],那栈顶元素就是左边界.但
+ *    右边界得等到下次遇到一个小于该元素的值入栈时才知道.这样我们还要花费额外
+ *    的空间去存储每个元素的左右边界.
+ * 3. 对于此问题,单调栈从栈底向栈顶应该是递增的.这样使得每个元素下面的元素就是
+ *    其左边界,而当有一个小于栈顶元素的值入栈时,这个值就是其右边界.
  */
+struct StackRecord;
+typedef struct StackRecord *Stack;
+typedef int ElementType;
+
+struct StackRecord {
+  int capacity;   /* 栈的容量,最多存放的元素个数. */
+  int top;        /* 栈顶指针,若为-1表明栈为空. */
+  ElementType *array; /* 栈元素数组,使用时自行typedef定义ElementType. */
+};
+
+/**
+ * 创建栈并初始化.
+ */
+Stack
+createStack(int size) {
+  Stack s;
+
+  s = malloc(sizeof(struct StackRecord));
+  s->array = malloc(size * sizeof(ElementType));
+
+  s->capacity = size;
+  s->top = -1;
+
+  return s;
+}
+
+/**
+ * 销毁栈.
+ */
+void
+disposeStack(Stack s) {
+  if (s) {
+    free(s->array);
+    free(s);
+  }
+}
+
+/**
+ * 判断栈是否为空.
+ */
+int
+isEmpty(Stack s) {
+  return s->top == -1;
+}
+
+/**
+ * 判断栈是否满.
+ */
+int
+isFull(Stack s) {
+  return s->top == s->capacity - 1;
+}
+
+/**
+ * 入栈.
+ * 调用者必须自行保证栈不满.
+ */
+void
+push(ElementType x, Stack s) {
+  s->array[++s->top] = x;
+}
+
+/**
+ * 出栈.
+ * 调用者必须自行保证栈非空.
+ */
+ElementType
+pop(Stack s) {
+  return s->array[s->top--];
+}
+
+ElementType
+top(Stack s) {
+  return s->array[s->top];
+}
+
+int
+largestRectangleArea(int *heights, int heightsSize) {
+  Stack s;
+  int i, area, max_area, h, curr;
+
+  s = createStack(heightsSize);
+  max_area = 0;
+  for (i = 0; i <= heightsSize; ++i) {
+    /* 当i=heightsSize时,h=0.这样做是为了处理整个数组本身就是单调递增的情况. */
+    h = (i == heightsSize ? 0 : heights[i]);
+    while (!isEmpty(s) && h < heights[top(s)]) {
+      /**
+       * h小于栈顶元素,那此时下标i即为栈顶元素的右边界.栈顶元素的下一个元素
+       * 即为其左边界.需要注意当栈顶元素是栈中最后一个元素时,其左边界要特殊
+       * 处理.
+       */
+      curr = pop(s);
+      area = heights[curr] * (isEmpty(s) ? i : (i - top(s) - 1));
+      if (area > max_area)
+        max_area = area;
+    }
+    push(i, s);
+  }
+
+  disposeStack(s);
+  return max_area;
+}
