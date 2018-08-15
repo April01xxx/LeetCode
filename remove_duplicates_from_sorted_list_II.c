@@ -42,7 +42,9 @@ deleteDuplicates(struct ListNode *head) {
     }
   }
   /* 判断最后一个元素出现的次数. */
-  if (count > 1)
+  if (count > 1) {
+    free(p);
     t->next = NULL;
+  }
   return h.next;
 }
