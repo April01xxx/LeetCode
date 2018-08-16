@@ -140,3 +140,46 @@ maximalSquare(char** matrix, int matrixRowSize, int matrixColSize) {
   disposeStack(s);
   return max_area;
 }
+
+/**
+ * 上面的解法固然精妙,但要一下子想到问题的最优解法有时候是非常困难的.往往都是
+ * 从基础的解法开始,仔细推敲琢磨,寻找优化的可能.先来看看普通思路下如何处理这
+ * 个问题.
+ * 1. 逐行从左往右,从上往下处理;
+ * 2. 若matrix[i][j]为0,则无需关注,若matrix[i][j]为1,因为要求的是正方形,故
+ *    直接向右下角扩展,判断新的正方形内所有元素是否都为1,如果是的话,则继续扩展.
+ * 3. 每找到一个更长的边,则保存下来.
+ */
+int
+maximalSquare(char **m, int rows, int cols) {
+  int edge, max_edge, i, j, k;
+  bool flag;   /* 判断范围内是否全是1. */
+
+  max_edge = 0;
+  for (i = 0; i < rows; ++i) {
+    for (j = 0; j < cols; ++j) {
+      if (m[i][j] == '1') {
+        /* 从该点出发寻找包围的所有元素都是1的正方形. */
+        edge = 1;
+        flag = true;
+        while (flag && i + edge < rows && j + edge < cols) {
+          /**
+           * 判断该矩形内部的所有元素是否都是1.
+           * 这里只需要判断最外面的行和列即可.
+           */
+          for (k = 0; k <= edge; ++k) {
+            if (m[i + edge][j + k] == '0' || m[i + k][j + edge] == '0') {
+              flag = false;
+              break;
+            }
+          }
+          if (flag)
+            ++edge;
+        }
+        if (edge > max_edge)
+          max_edge = edge;
+      }
+    }
+  }
+  return max_edge * max_edge;
+}
