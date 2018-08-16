@@ -1,9 +1,9 @@
 /**
- * Given a 2D binary matrix filled with 0's and 1's, find the largest square 
+ * Given a 2D binary matrix filled with 0's and 1's, find the largest square
  * containing only 1's and return its area.
  *
  * Example:
- * Input: 
+ * Input:
  *   1 0 1 0 0
  *   1 0 1 1 1
  *   1 1 1 1 1
@@ -181,5 +181,47 @@ maximalSquare(char **m, int rows, int cols) {
       }
     }
   }
+  return max_edge * max_edge;
+}
+
+/**
+ * 一般求极值的问题,可以考虑用动态规划求解.此题也可以这么做,但dp的是什么,需要
+ * 仔细思考.题目是要求最大的正方形面积,如果令dp[i][j]表示i x j矩阵内最大的面积
+ * 的话,那dp[i+1][j],dp[i][j+1]如何求解呢?题目要求的是正方形面积,那我们只需要
+ * 保存最大的边长即可,dp[i][j]表示右下角在matrix[i][j]处的正方形的边长.
+ * 如果matrix[i][j]=0,显然dp[i][j]=0,如果matrix[i][j]=1,那么dp[i][j]怎么计算呢.
+ * 结合图形来思考:
+ *                       (i-1,j-1) | (i-1,j)
+ *                       ----------|--------
+ *                       (i,j-1)   | (i,j)
+ * 我们要求dp[i][j],如果知道dp[i-1][j-1],dp[i-1][j],dp[i][j-1]三者的值的话,能
+ * 计算dp[i][j]的值吗?显然是可以的,而且dp[i][j]应该是这三者中最小值加上1.
+ * 注意到状态转移方程只用到了3个值,故dp空间开销只需要O(n).
+ */
+#define min(x, y) ((x) > (y) ? (y) : (x))
+int
+maximalSquare(char **m, int rows, int cols) {
+  int *dp, max_edge, i, j;
+  int up_left, tmp;
+
+  dp = (int *)calloc(cols + 1, sizeof(int));
+  max_edge = 0;
+  for (i = 0; i < rows; ++i) {
+    up_left = dp[0];
+    for (j = 0; j < cols; ++j) {
+      if (m[i][j] == '0') {
+        up_left = dp[j + 1];
+        dp[j + 1] = 0;
+      } else {
+        tmp = dp[j + 1];
+        dp[j + 1] = min(min(dp[j], dp[j + 1]), up_left) + 1;
+        up_left = tmp;
+        if (dp[j + 1] > max_edge)
+          max_edge = dp[j + 1];
+      }
+    }
+  }
+
+  free(dp);
   return max_edge * max_edge;
 }
