@@ -73,3 +73,12 @@ ElementType
 pop(Stack s) {
   return s->array[s->top--];
 }
+
+/**
+ * 获取栈顶元素.
+ * 调用者自行保证栈非空.
+ */
+ElementType
+top(Stack s) {
+  return s->array[s->top];
+}
