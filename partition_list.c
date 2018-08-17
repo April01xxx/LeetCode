@@ -123,7 +123,7 @@ partition(struct ListNode *head, int x) {
       t1 = head;
       head = head->next;
     } else {
-      t1->next = head;
+      t1->next = head->next;
       head->next = NULL;
       t2->next = head;
       t2 = t2->next;
