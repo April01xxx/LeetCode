@@ -150,3 +150,127 @@ maximalRectangle(char** matrix, int matrixRowSize, int matrixColSize) {
   disposeStack(s);
   return max_area;
 }
+
+/**
+ * 一般的求极值问题,利用动态规划都可以解决.做这题时并未想到要dp的是什么,遂作罢.
+ * 做了maximal square那道题后看了下那道题的dp解法,受到启发,现写下这题的dp解法.
+ * 1. 要dp的还是右下角位于(i,j)处的最大矩形面积的长和宽,这里情况比maximal square
+ *    那道题复杂,因为矩形的长宽不一定相等,还是结合图形来说明:
+ *                      (i-1,j-1) | (i-1,j)
+ *                      ----------|--------    水平方向为长,垂直为高.
+ *                      (i,j-1)   | (i,j)
+ * 2. 设右下角在(i-1,j-1)处的矩形长为L1,高为H1;右下角在(i-1,j)处的矩形长为L2,
+ *    高为H2;右下角在(i,j-1)处的矩形长为L3,高为H3.那么右下角在(i,j)处的矩形长
+ *    高分别是多少呢?
+ * 3. 我们先来看看(i,j)处的矩形有多少种情况,为了便于后续解释,令第j列的第i行开始往
+ *    上连续的1的个数为H,第i行的第j列开始往左连续的1的个数为L:
+ *    a. 第j列和右下角在(i,j-1)处的矩形组合为更大的矩形,此时矩形的长为L3+1,矩形
+ *       的高为多少呢?应该是min(H3, H);
+ *    b. 第i行和右下角在(i-1,j)处的矩形组合为更大的矩形,此时矩形的高为H2+1,矩形
+ *       的长应该是min(L2, L);
+ *    c. 第i行,第j列和右下角在(i-1,j-1)处的矩形组合为更大的矩形;
+ *    d. 高度为1,长为L的矩形;
+ *    e. 长为1,高度为H的矩形;
+ * 通过以上分析可知,对于每个点(i,j)需要维护4个信息:
+ * 0 - 右下角位于(i,j)处的面积最大的矩形的长;
+ * 1 - 右下角位于(i,j)处的面积最大的矩形的高;
+ * 2 - 第i行从第j列开始往左连续的1的个数;
+ * 3 - 第j列从第i行开始向上连续的1的个数;
+ * 另外注意到dp的过程中只涉及3个变量,空间开销为4 x cols.
+ */
+#define min(x, y) ((x) > (y) ? (y) : (x))
+#define max(x, y) ((x) > (y) ? (x) : (y))
+
+int
+maximalRectangle(char **m, int rows, int cols) {
+  int **dp;
+  int i, j, tmp[4], prev[4];
+  int max_area;
+
+  dp = (int **)malloc((1 + cols) * sizeof(int *));
+  for (i = 0; i <= cols; ++i)
+    dp[i] = (int *)calloc(4, sizeof(int));
+
+  max_area = 0;
+  for (i = 0; i < rows; ++i) {
+    memcpy(prev, dp[0], 4 * sizeof(int));
+    for (j = 0; j < cols; ++j) {
+      if (m[i][j] == '0') {
+        memcpy(prev, dp[j + 1], 4 * sizeof(int));
+        memset(dp[j + 1], 0, 4 * sizeof(int));
+      } else {
+        memcpy(tmp, dp[j + 1], 4 * sizeof(int));
+
+        /* 计算(i,j)处水平和垂直方向延伸的距离. */
+        dp[j + 1][2] = 1 + dp[j][2];
+        dp[j + 1][3] = 1 + dp[j + 1][3];
+
+        /**
+         * 1. 计算右下角在(i-1,j-1)处的矩形和第i行,第j列组合为更大矩形的情况.
+         * dp[j][0]: 右下角在(i,j-1)处矩形的长;
+         * prev[0]: 右下角在(i-1,j-1)处矩形的长;
+         * dp[j + 1][2]: (i,j)处水平向左连续1的个数;
+         * dp[j + 1][1]: 右下角在(i-1,j)处的矩形的高;
+         * prev[1]: 右下角在(i-1,j-1)处矩形的高;
+         * dp[j + 1][3]: (i,j)处垂直向上连续1的个数;
+         */
+        int x1 = min(min(1 + dp[j][0], 1 + prev[0]), dp[j + 1][2]);
+        int y1 = min(min(1 + dp[j + 1][1], 1 + prev[1]), dp[j + 1][3]);
+        int area1 = x1 * y1;
+
+        /**
+         * 2. 计算右下角在(i-1,j)处的矩形和第i行组合为更大矩形的情况.
+         */
+        int x2 = min(dp[j + 1][0], dp[j + 1][2]);
+        int y2 = 1 + dp[j + 1][1];
+        int area2 = x2 * y2;
+
+        /**
+         * 3. 计算右下角在(i,j-1)处的矩形和第j列组合为更大矩形的情况.
+         */
+        int x3 = 1 + dp[j][0];
+        int y3 = min(dp[j][1], dp[j + 1][3]);
+        int area3 = x3 * y3;
+
+        /**
+         * 4. (i,j)处水平向左连续1的个数组成的矩形.
+         */
+        int area4 = dp[j + 1][2];
+
+        /**
+         * 5. (i,j)处垂直向上连续1的个数组成的矩形.
+         */
+        int area5 = dp[j + 1][3];
+
+        /* 计算最大面积并更新dp[j + 1][0],dp[j + 1][1]. */
+        if (area1 > max(area2, max(area3, max(area4, area5)))) {
+          dp[j + 1][0] = x1;
+          dp[j + 1][1] = y1;
+        } else if (area2 > max(area3, max(area4, area5))) {
+          dp[j + 1][0] = x2;
+          dp[j + 1][1] = y2;
+        } else if (area3 > max(area4, area5)) {
+          dp[j + 1][0] = x3;
+          dp[j + 1][1] = y3;
+        } else if (area4 > area5) {
+          dp[j + 1][0] = area4;
+          dp[j + 1][1] = 1;
+        } else {
+          dp[j + 1][0] = 1;
+          dp[j + 1][1] = area5;
+        }
+
+        max_area = max(max_area, dp[j + 1][0] * dp[j + 1][1]);
+
+        /* 保存prev. */
+        memcpy(prev, tmp, 4 * sizeof(int));
+      }
+    }
+  }
+
+  for (i = 0; i <= cols; ++i)
+    free(dp[i]);
+  free(dp);
+
+  return max_area;
+}
