@@ -35,8 +35,8 @@ int *
 grayCode(int n, int *returnSize) {
   int *ans;
 
-  ans = (int *)malloc(n * sizeof(int));
+  *returnSize = (1 << n);
+  ans = (int *)malloc(*returnSize * sizeof(int));
   ans[0] = 0;
-  *returnSize = 1;
 
 }
