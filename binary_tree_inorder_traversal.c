@@ -30,11 +30,9 @@ traversal(struct TreeNode *t, int **ans, int *size) {
 
 int *
 inorderTraversal(struct TreeNode *root, int *returnSize) {
-  int *ans;
+  int *ans = NULL;
 
   *returnSize = 0;
-  ans = (int *)malloc(BUFFSIZE * sizeof(int));
-
   traversal(root, &ans, returnSize);
 
   return ans;
