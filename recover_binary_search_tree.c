@@ -158,3 +158,53 @@ recoverTree(struct TreeNode *root) {
     second->val = temp;
   }
 }
+
+/**
+ * 写在最后,因为题目说只有一对节点被错误交换,上述所有解法在找到第二个错误
+ * 节点时就可以返回了,但这里有些地方需要注意:
+ * 1. 对于递归的解法,需要再用一个额外变量来表示是否找到第二个错误节点,这样
+ *    可以提前返回.
+ * 2. 对于利用threaded binary tree的方法,由于在遍历的过程中修改了树的结构,
+ *    必须完整遍历后才能恢复,无法提前结束循环.
+ */
+void
+traversal(struct TreeNode *node, struct TreeNode **prev,
+          struct TreeNode **first, struct TreeNode **second, 
+          struct TreeNode **last) {
+  if (node == NULL || *last)  /* 利用last提前结束递归. */
+    return;
+  /* 中序遍历寻找被错误交换的节点. */
+  traversal(node->left, prev, first, second, last);
+
+  /**
+   * 当前节点值比前面节点的值小,说明前面的节点是被错误交换的节点.
+   * 题目假设只有一对节点被错误交换,此处用两个指针分别指向这两个节点.
+   */
+  if (*prev && node->val <= (*prev)->val) {
+    if (*first == NULL) {
+      *first = *prev;
+      *second = node;
+    } else {
+      *last = node;
+      return;
+    }
+  }
+
+  /* 中序遍历,当前节点变为右子树的prev. */
+  *prev = node;
+  traversal(node->right, prev, first, second, last);
+}
+
+void
+recoverTree(struct TreeNode *root) {
+  struct TreeNode *prev = NULL, *first = NULL, *second = NULL, *last = NULL;
+
+  traversal(root, &prev, &first, &second, &last);
+
+  if (first) {
+    last = last ? last : second;
+    int temp = first->val;
+    first->val = last->val;
+    last->val = temp;
+  }
+}
