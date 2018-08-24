@@ -67,3 +67,94 @@ recoverTree(struct TreeNode *root) {
  * 我们用一个指针指向第一个不满足二叉查找树性质的节点,当遇到第二个这样的节点时,交换
  * 两节点存储的值即可.
  */
+void
+traversal(struct TreeNode *node, struct TreeNode **prev,
+          struct TreeNode **first, struct TreeNode **second) {
+  if (node == NULL)
+    return;
+  /* 中序遍历寻找被错误交换的节点. */
+  traversal(node->left, prev, first, second);
+
+  /**
+   * 当前节点值比前面节点的值小,说明前面的节点是被错误交换的节点.
+   * 题目假设只有一对节点被错误交换,此处用两个指针分别指向这两个节点.
+   */
+  if (*prev && node->val <= (*prev)->val) {
+    if (*first == NULL)
+      *first = *prev;
+    /**
+     * second指向当前节点,因为可能当前节点就是那个被错误交换的节点.
+     * 在遍历的过程中如果再次遇到不满足中序遍历结果的节点,则更新second.
+     */
+    *second = node;
+  }
+
+  /* 中序遍历,当前节点变为右子树的prev. */
+  *prev = node;
+  traversal(node->right, prev, first, second);
+}
+
+void
+recoverTree(struct TreeNode *root) {
+  struct TreeNode *prev = NULL, *first = NULL, *second = NULL;
+
+  traversal(root, &prev, &first, &second);
+
+  if (first && second) {
+    int temp = first->val;
+    first->val = second->val;
+    second->val = temp;
+  }
+}
+
+/**
+ * 以上两种解法的空间复杂度都是O(n),第二种解法是利用了函数调用自带的栈.要想实现O(1)
+ * 的解法,必须找到一种不需要递归或者额外空间就能遍历整个树的方法.要实现这个目的,需要
+ * 借助一种称为threaded binary tree(中文普遍译为螺纹树)的数据结构.详细资料可以自行
+ * Google.基本思路还是中序遍历BST,在遍历过程中发现错误节点则将其记录下来.关于如何利
+ * 用螺纹树中序遍历,可以查看另一道题binary tree inorder traversal的解法.这里有点小
+ * 区别:我们需要同时记录前驱和后继节点.
+ */
+void
+recoverTree(struct TreeNode *root) {
+  struct TreeNode *prev = NULL, *curr;   /* for threaded binary tree. */
+  struct TreeNode *first = NULL, *second = NULL, *p = NULL;
+
+  curr = root;
+  while (curr) {
+    if (curr->left) {
+      prev = curr->left;
+      while (prev->right && prev->right != curr)
+        prev = prev->right;
+
+      if (prev->right) {
+        prev->right = NULL;
+        if (curr->val <= p->val) {
+          if (first == NULL)
+            first = p;
+          second = curr;
+        }
+
+        p = curr;  /* 接下来向右遍历,当前节点变为前驱. */
+        curr = curr->right;
+      } else {
+        prev->right = curr;
+        curr = curr->left;
+      }
+    } else {
+      if (p && curr->val <= p->val) {
+        if (first == NULL)
+          first = p;
+        second = curr;
+      }
+      p = curr;  /* 接下来向右遍历,当前节点变为前驱. */
+      curr = curr->right;
+    }
+  }
+
+  if (first && second) {
+    int temp = first->val;
+    first->val = second->val;
+    second->val = temp;
+  }
+}
