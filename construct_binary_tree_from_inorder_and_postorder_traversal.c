@@ -24,7 +24,7 @@ buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize) {
   struct TreeNode *root;
   int p;
 
-  if (postorderSize == 0)
+  if (inorderSize == 0 || postorderSize == 0)
     return NULL;
 
   root = malloc(sizeof(struct TreeNode));
@@ -39,4 +39,42 @@ buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize) {
                           postorder + p, postorderSize - p - 1);
 
   return root;
+}
+
+/**
+ * 下面这种写法在LeetCode上运行更快,有点迷.可能是因为用一个全局指针pIndex使得取值
+ * 变快了.
+ */
+struct TreeNode *
+helper(int *inorder, int inorderSize, int *postorder, int *pIndex) {
+  struct TreeNode *root;
+  int p;
+
+  if (inorderSize <= 0 || *pIndex < 0)
+    return NULL;
+
+  root = malloc(sizeof(struct TreeNode));
+  root->val = postorder[*pIndex];
+
+  p = 0;
+  while (inorder[p] != root->val)
+    ++p;
+
+  *pIndex -= 1;
+
+  root->right = helper(inorder + p + 1, inorderSize - p - 1, postorder, pIndex);
+  root->left = helper(inorder, p, postorder, pIndex);
+
+  return root;
+}
+
+struct TreeNode *
+buildTree(int *inorder, int inorderSize, int *postorder, int postorderSize) {
+  int pIndex;
+
+  if (postorderSize == 0)
+    return NULL;
+
+  pIndex = postorderSize - 1;
+  return helper(inorder, inorderSize, postorder, &pIndex);
 }
