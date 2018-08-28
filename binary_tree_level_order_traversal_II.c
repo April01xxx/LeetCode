@@ -64,3 +64,39 @@ public:
     return ans;
   }
 };
+
+/**
+ * 上面的写法也可以不借助栈,直接将结果反转即可.
+ * PS: 突然有点喜欢C++.
+ */
+class Solution {
+public:
+  vector<vector<int>> levelOrderBottom(TreeNode* root) {
+    queue<TreeNode *> q;
+    vector<vector<int>> ans;
+
+    if (root == NULL)
+      return ans;
+    q.push(root);
+
+    while (!q.empty()) {
+      int count = q.size();
+      vector<int> level;
+      TreeNode *node;
+      for (int i = 0; i < count; ++i) {
+        node = q.front();
+        q.pop();
+        level.push_back(node->val);
+        if (node->left)
+          q.push(node->left);
+        if (node->right)
+          q.push(node->right);
+      }
+      ans.push_back(level);
+    }
+
+    reverse(ans.begin(), ans.end());
+
+    return ans;
+  }
+};
