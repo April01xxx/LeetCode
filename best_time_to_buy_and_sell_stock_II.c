@@ -46,3 +46,28 @@ maxProfit(int *prices, int pricesSize) {
 
   return profit;
 }
+
+/**
+ * 如果觉得以上代码难以理解,可以考虑第二个例子[1,2,3,4,5].
+ * 核心思想还是价格上涨就不卖,下跌才卖.写成下面这样或许更
+ * 容易理解.
+ * PS:我也是先写了下面的代码发现可以优化,最终就成了上面这样.
+ */
+int
+maxProfit(int *prices, int pricesSize) {
+  int i, valley, peak, profit = 0;
+
+  for (i = 0; i < pricesSize; ++i) {
+    while (i < pricesSize - 1 && prices[i] >= prices[i + 1])
+      ++i;  /* 价格下跌. */
+    valley = prices[i];
+
+    while (i < pricesSize - 1 && prices[i] <= prices[i + 1])
+      ++i;  /* 价格上涨. */
+    peak = prices[i];
+
+    profit += peak - valley;
+  }
+
+  return profit;
+}
