@@ -39,3 +39,22 @@ maxProfit(int *prices, int pricesSize) {
 
   return profit;
 }
+
+/**
+ * 上述max遍历的定义是没必要的,只需要记录最小值,最大值是当前值.
+ */
+int
+maxProfit(int *prices, int pricesSize) {
+  int i, min, profit;
+
+  min = INT_MAX;
+  profit = 0;
+  for (i = 0; i < pricesSize; ++i) {
+    if (prices[i] < min)
+      min = prices[i];
+    else if (profit < prices[i] - min)
+      profit = prices[i] - min;
+  }
+
+  return profit;
+}
