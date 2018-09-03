@@ -141,3 +141,111 @@ maxProfit(int *prices, int pricesSize) {
   free(memo);
   return profit;
 }
+
+
+/**
+ * 这道题也可以用动态规划来求解,这里我们讨论更一般的情形,最多允许k次交易,
+ * 求最大收益.令dp[i][k]表示第i天发生了k次交易的最大收益.那么状态转移方
+ * 程是什么呢?对于这k次交易,有两种情形:
+ * 1. 前面i-1天就已经发生了k次交易,第i天没有交易(例如第i天股价下跌).此时
+ *    dp[i][k] = dp[i-1][k];
+ * 2. 前面i-1天发生了k-1次交易,最后一次交易发生在第i天.此时要求最大收益,
+ *    那就是要找到一天j,这一天之前发生了k-1次交易,第i天发生第k笔交易,加
+ *    起来的总收益最大.此时:
+ *    dp[i][k] = dp[j][k-1] + prices[i] - prices[j];
+ * 最终dp[i][k]的值应该是这两只中的较大者.
+ * 上面第二种情况是要求一个j使得dp[i][k]最大,也就是
+ * dp[i][k] = prices[i] + max(dp[j][k-1] - prices[j]),最终我们有:
+ * dp[i][k] = max(dp[i-1][k], prices[i] + max(dp[j][k-1] - prices[j])),
+ * 其中0<=j<i.
+ * 
+ * PS: 最开始计算max(dp[j][k-1] - prices[j])时,我单独用了一层循环去遍历,
+ * 看了LeetCode讨论区的解答发现没必要,只需要在循环时先计算k-1次交易的最大
+ * 收益,在这个过程中用一个临时变量保存max(dp[j][k-1] - prices[j])的值即
+ * 可.
+ */
+#define max(x, y) ((x) > (y) ? (x) : (y))
+int
+maxProfit(int k, int *prices, int pricesSize) {
+  int **dp, i, j, profit = 0;
+
+  if (k > pricesSize)
+    k = pricesSize;
+
+  dp = malloc(pricesSize * sizeof(int *));
+  for (i = 0; i < pricesSize; ++i)
+    dp[i] = calloc(1 + k, sizeof(int));
+
+  for (j = 1; j <= k; ++j) {
+    /**
+     * 用temp_max保存max(dp[j][k-1] - prices[j])的最大值.
+     */
+    int temp_max = dp[0][j - 1] - prices[0];
+    for (i = 1; i < pricesSize; ++i) {
+      dp[i][j] = max(dp[i - 1][j], prices[i] + temp_max);
+      profit = max(profit, dp[i][j]);
+
+      /* 计算下一天的tmp_max. */
+      temp_max = max(temp_max, dp[i][j - 1] - prices[i]);
+    }
+  }
+
+  for (i = 0; i < pricesSize; ++i)
+    free(dp[i]);
+  free(dp);
+
+  return profit;
+}
+
+
+/**
+ * 上述方法在LeetCode上会MLE,那就是要强迫我们用O(k)的空间复杂度来求解了.
+ * 仔细观察上述代码,dp的计算过程中只用到了dp[i-1][j],dp[i][j-1],故空间
+ * 复杂度可以优化.
+ */
+int
+profit(int *prices, int pricesSize) {
+  int i, max_profit = 0;
+
+  for (i = 1; i < pricesSize; ++i) {
+    if (prices[i] > prices[i - 1])
+      max_profit += prices[i] - prices[i - 1];
+  }
+
+  return max_profit;
+}
+
+#define max(x, y) ((x) > (y) ? (x) : (y))
+int
+maxProfit(int k, int *prices, int pricesSize) {
+  int *dp, i, j, max_profit = 0;
+
+  if (k > pricesSize) {
+    /* k比pricesSize大时,问题退化为没有交易次数限制. */
+    return profit(prices, pricesSize);
+  }
+
+  /* dp[j]表示第j天发生了i次交易的最大收益. */
+  dp = calloc(pricesSize, sizeof(int));
+
+  for (i = 1; i <= k; ++i) {
+    /* temp_max初始化,表示第0天发生了i-1次交易的最大收益. */
+    int temp_max = dp[0] - prices[0];
+    for (j = 1; j < pricesSize; ++j) {
+      int temp = dp[j] - prices[j];
+      /* dp[j-1]表示第j-1天发生i次交易的最大收益. */
+      dp[j] = max(dp[j - 1], prices[j] + temp_max);
+      max_profit = max(max_profit, dp[j]);
+
+      /**
+       * 找到最大的l,使得这一天之前发生了i-1次交易,第j天发生第
+       * i笔交易,两者的和最大.
+       */
+      temp_max = max(temp_max, temp);
+    }
+  }
+
+  free(dp);
+
+  return max_profit;
+}
