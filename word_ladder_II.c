@@ -162,4 +162,69 @@ findLadders(char *beginWord, char *endWord, char **wordList, int wordListSize,
  * 2. 以"dog"为key,找到"dot",以"dot"为key找到"hot",以"hot"为key,找到"hit";
  *    以"log"为key,找到"lot",以"lot"为key找到"hot",以"hot"为key,找到"hit";
  * 3. 循环结束即得到答案.
+ *
+ */
+class Solution {
+public:
+  vector<vector<string>>
+  findLadders(string b, string e, vector<string>& wordList) {
+    map<string, set<string>> parent, level;
+    map<string, int> dict;
+    vector<vector<string>> ans;
+    set<string> value;
+    vector<string> row;
+
+    for (int i = 0; i < wordList.size(); ++i)
+      dict[wordList[i]] = i;
+
+    if (dict.count(e) == 0)
+      return ans;
+
+    level[b] = value;
+    parent[b] = value;
+    while (level.size() > 0 && parent.count(e) == 0) {
+      map<string, set<string>> next_level;
+      for (auto it = level.begin(); it != level.end(); ++it) {
+        for (int i = 0; i < it->first.size(); ++i) {
+          string temp = it->first;
+          for (int c = 'a'; c <= 'z'; ++c) {
+            temp[i] = c;
+            if (dict.count(temp) > 0 && parent.count(temp) == 0)
+              next_level[temp].insert(it->first);
+          }
+        }
+      }
+      level = next_level;
+      for (auto it = level.begin(); it != level.end(); ++it)
+        parent[it->first].insert(it->second.begin(), it->second.end());
+    }
+
+    helper(b, e, parent, row, ans);
+
+    return ans;
+  }
+
+  void
+  helper(string b, string e, map<string, set<string>>& parent,
+         vector<string> value, vector<vector<string>>& ans) {
+    value.push_back(e);
+    if (b == e) {
+      ans.push_back(value);
+      reverse(ans.back().begin(), ans.back().end());
+      value.pop_back();
+      return;
+    }
+
+    for (auto it = parent[e].begin(); it != parent[e].end(); ++it)
+      helper(b, *it, parent, value, ans);
+  }
+};
+
+
+/**
+ * 后记: 这题最开始的C实现中,只考虑了DFS,这就导致会出现很多非最短路径的
+ * 无用遍历,正确的思路应该是先BFS,再DFS.
+ * 对于每个字符串,先判断改变一个字母后,在字典中是否存在,将所有这样的字符
+ * 串形成一个集合,这一步属于BFS.后续针对这个集合中的每个字符串重复这个操
+ * 作,这是DFS,当遇到endWord后结束循环,这样找到的即为最短路径.
  */
