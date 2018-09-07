@@ -202,6 +202,7 @@ ladderLength(char *beginWord, char *endWord, char **wordList,
   free(curr);
   free(next);
   free(temp);
+  freeHashMap(h);
   if (h->table[find(h, endWord)].info == Delete)
     return ans;
   else
