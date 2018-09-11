@@ -214,5 +214,71 @@ longestConsecutive(int *nums, int numsSize) {
 /**
  * 快排的复杂度是O(nlogn),若用基数排序,复杂度是O(n).
  * 传统的基数排序是从最低位开始逐位比较,这里假设是32位整数,在排序时可以一次性
- * 比较8位,即0~255.
+ * 比较8位,即0~255,也就是基数取256.需要注意的是,基数排序所处理的数据的符号必
+ * 须一致,故需要预先对数组做处理.
  */
+void
+radixSort(int *a, int n) {
+  int c[4][256] = {0};    /* 基数为256,对于32位整数来说,分为了4部分. */
+  int *b;
+  int i, j;
+
+  for (j = 0; j < 4; ++j) {
+    for (i = 0; i < n; ++i)
+      ++c[j][a[i] >> (j * 8) & 0xFF];
+  }
+
+  for (j = 0; j < 4; ++j) {
+    for (i = 1; i < 256; ++i)
+      c[j][i] += c[j][i - 1];
+  }
+
+  b = malloc(n * sizeof(int));
+
+  for (j = 0; j < 4; ++j) {
+    for (i = n - 1; i >= 0; --i) {
+      b[--c[j][a[i] >> (j * 8) & 0xFF]] = a[i];
+    }
+    int *temp = a;
+    a = b;
+    b = temp;
+  }
+
+  free(b);
+}
+
+int
+longestConsecutive(int *nums, int numsSize) {
+  int i, j, ans, consecutive;
+
+  if (numsSize <= 1)
+    return numsSize;
+
+  /* 基数排序只能处理符号相同的数. */
+  j = 0;
+  for (i = 0; i < numsSize; ++i) {
+    if (nums[i] >= 0)
+      continue;
+    int temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+    ++j;
+  }
+
+  if (j > 0)
+    radixSort(nums, j);
+  radixSort(nums + j, numsSize - j);
+
+  ans =  consecutive = 1;
+  for (i = 1; i < numsSize; ++i) {
+    if (nums[i] == nums[i - 1] + 1)
+      ++consecutive;
+    else if (nums[i] > nums[i - 1] + 1)
+      consecutive = 1;
+
+    if (consecutive > ans)
+      ans = consecutive;
+  }
+
+  return ans;
+}
