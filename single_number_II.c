@@ -14,7 +14,7 @@
  * Output: 99
  *
  * single number问题升级版II,除了一个元素外,每个元素出现三次.用上一题的通用解法
- * 可解.
+ * 可解.虽然是升级版,但问题本质是一样的: 除了一个元素外,其余的元素均出现多次.
  */
 typedef enum {
   Empty, Legitimate, Delete
