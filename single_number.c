@@ -118,4 +118,21 @@ singleNumber(int *nums, int numsSize) {
  * 1. 借助额外空间记录已经存在的元素,但不允许额外的空间,那就只能借助原有的数组;
  * 2. 不通过额外空间记录,通过数学方法找出只出现了一次的元素;
  * 3. 以上两者结合;
+ *
+ * 自己想了老半天没想到...看了LeetCode讨论区的解答,用异或即可.
+ * PS: 思维不够发散啊...
+ * 大致原理如下:
+ * 1. 0 ^ X = X
+ * 2. X ^ X = 0
+ * 除了一个元素外,每个元素均出现两次,那么将所有数异或最后得到的就是我们要找的数.
  */
+int
+singleNumber(int *nums, int numsSize) {
+  int i, ans;
+
+  ans = 0;
+  for (i = 0; i < numsSize; ++i)
+    ans ^= nums[i];
+
+  return ans;
+}
