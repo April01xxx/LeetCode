@@ -114,3 +114,68 @@ copyRandomList(List *head) {
   m = createMap(10240);
   return deepCopy(head, m);
 }
+
+
+/**
+ * 上述方法需要用到hash表,由于链表的元素事先不能确定,故节点数过多时不能正常工作.
+ * 看了下LeetCode的讨论区,有一种非常巧妙的方法,示例如下:
+ *                    ___
+ *                   /   \
+ *                   1 -> 2 -> 3 -> 4 -> NULL
+ *                             \___/
+ * 第一个节点的random指向第二个节点,第三个节点的random指向第4个节点.
+ * 1. 在深度拷贝时,我们先分配空间复制我们要拷贝的节点,并将其连接在我们要拷贝的
+ *    节点后,变成以下形式:
+ *                    ________
+ *                   /        \
+ *                   1 -> 1 -> 2 -> 2 -> 3 -> 3 -> 4 -> 4 -> NULL;
+ *                                        \_______/
+ * 2. 接着修正我们要拷贝的节点的random指针,令原节点为origin,复制后的节点为copy,
+ *    假设原节点的random指针原先指向A节点:origin->random = A,那么经过第一步的
+ *    操作后其应该指向A节点的next节点,即A的copy节点:origin->random = A->next.
+ *    所以copy->random == origin->next->random == origin->random->next;
+ * 3. 将复制后的节点组合为新的链表返回.
+ */
+typedef struct RandomListNode List;
+
+List *
+copyRandomList(List *head) {
+  List *origin, *copy, h, *t;
+
+  if (!head)
+    return NULL;
+
+  /* 复制节点并连接到原节点后. */
+  origin = head;
+  while (origin) {
+    copy = malloc(sizeof(List));
+
+    copy->label = origin->label;
+    copy->next = origin->next;
+    copy->random = NULL;    /* 拷贝节点的random默认为空. */
+    origin->next = copy;
+
+    origin = copy->next;
+  }
+
+  /* 修正random指针. */
+  origin = head;
+  while (origin) {
+    if (origin->random)   /* 注意判断原节点random是否为空. */
+      origin->next->random = origin->random->next;
+
+    origin = origin->next->next;
+  }
+
+  h.next = NULL;
+  t = &h;
+  origin = head;
+  while (origin) {
+    t->next = origin->next;
+    t = t->next;
+    origin->next = t->next;
+    origin = t->next;
+  }
+
+  return h.next;
+}
