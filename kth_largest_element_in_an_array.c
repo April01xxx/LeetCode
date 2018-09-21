@@ -57,7 +57,7 @@ findKthLargest(int *nums, int numsSize, int k) {
  * 这题还一种非常巧妙的做法,借助了快排算法的分割思路:
  * 1. 选取一个目标作为分割的界限pivot;
  * 2. 所有大于pivot的放在它的右边,小于pivot的放在左边;
- * 3. 返回pivot所处的位置pos,这意味着在pivot的左边有pos个数小于pivot.
+ * 3. 返回pivot所处的位置pos,这意味着在pivot的左边有pos个数大于pivot.
  * 4. 若k小于pivot,说明要找的元素在pivot的左边,否则在pivot的右边.
  */
 void
