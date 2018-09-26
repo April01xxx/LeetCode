@@ -204,6 +204,9 @@ lRUCacheFree(LRUCache *obj) {
  *    也删除.
  * 2. get操作时,查找key在hash表中是否有记录,若没有则返回-1,否则返回对应
  *    的value.
+ *
+ * 下面的代码能通过OJ,但实际上对hash表的处理是有BUG的,在hashTableFind
+ * 函数中查找对应key的位置时,若hash表已满,则会陷入死循环.
  */
 typedef enum {
   Empty = 0, Legitimate, Delete
@@ -245,11 +248,27 @@ hashTableFind(HashTable *h, int key) {
   int hash = labs(key) % h->capacity;
   HashEntry *ht = h->array;
 
+  /**
+   * 下面这段代码有BUG,对于本题来说,当元素个数超过缓存限制时
+   * 会删除最近最少使用的元素,本例中删除采用的是懒惰删除(只是
+   * 将状态置为Delete),所以会出现hash表满的情况.当hash表满了
+   * 后下面这段代码会死循环.修正的方法是当发现全部遍历一次后未
+   * 找到合适的位置则返回状态是被删除的第一个位置.
+   */
   while (ht[hash].state != Empty &&
          ht[hash].node.key != key) {
     ++hash;
     if (hash == h->capacity)
       hash = 0;
+    if (hash == labs(key) % h->capacity) {
+      while (ht[hash].state != Delete) {
+        ++hash;
+        if (hash == h->capacity)
+          hash = 0;
+      }
+
+      return hash;
+    }
   }
 
   return hash;
