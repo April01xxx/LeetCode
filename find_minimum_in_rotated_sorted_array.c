@@ -49,8 +49,8 @@ findMin(int *nums, int numsSize) {
       return nums[lo];
     else if (nums[mid] > nums[hi])
       lo = mid + 1;
-    else if (nums[lo] > nums[mid] && nums[mid] < nums[hi])
-      hi = mid;
+    else if (nums[mid] < nums[hi])
+      hi = mid;   /* 不是mid-1,因为mid可能就是要找的元素. */
   }
 
   return 0;
