@@ -34,3 +34,34 @@ findPeakElement(int *nums, int numsSize) {
 
   return 0;
 }
+
+/**
+ * Note中提到算法的时间复杂度必须是logN,自然想到能否用二分法来求解.
+ * 根据题设任意相邻的两个元素不等,也就是有以下几种情形:
+ * \      \/             /
+ *  \           /\      /
+ * 我们要求的是局部峰值,也就是说情形三是我们要的结果.如果我们采用二分法,
+ * 应该如何决定搜索的方向呢?对某个元素a[i]而言,若a[i]>a[i-1] && a[i]>a[i+1],
+ * 那么我们找到了答案.若a[i]>a[i-1]但a[i]<a[i+1],则说明在右边一定有局部极值.
+ * 若a[i]<a[i-1]但a[i]>a[i+1],说明在左边一定有极值.若a[i]<a[i-1]但a[i]<a[i+1]
+ * 则说明任意一边都有极值.
+ */
+int
+findPeakElement(int *nums, int numsSize) {
+  int lo, hi, mid;
+
+  lo = 0; hi = numsSize - 1;
+  while (lo < hi) {
+    mid = (lo + hi) / 2;
+
+    /* 注意考虑边界情况,因为mid=(lo+hi)/2且lo<hi,所以mid<hi. */
+    if (a[mid] > a[mid + 1] && (mid == 0 || a[mid] > a[mid - 1]))
+      return mid;
+    else if (a[mid] < a[mid + 1])
+      lo = mid + 1;
+    else
+      hi = mid - 1;
+  }
+
+  return lo;
+}
