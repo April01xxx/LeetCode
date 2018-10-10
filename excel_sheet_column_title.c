@@ -37,9 +37,6 @@ convertToTitle(int n) {
   int idx = 0, q, r;
   int i, j, len;
 
-  /**
-   * 若n是26的整数倍,例如26,676等,在处理时
-   */
   while (n != 0) {
     r = n % 26;
     n /= 26;
@@ -50,6 +47,29 @@ convertToTitle(int n) {
 
   /* 将结果反转即为答案. */
   len = strlen(ans);
+  i = 0, j = len - 1;
+  while (i < j) {
+    int ch = ans[i];
+    ans[i] = ans[j];
+    ans[j] = ch;
+    ++i, --j;
+  }
+
+  return ans;
+}
+
+
+char *
+convertToTitle(int n) {
+  char *ans = calloc(8, sizeof(char));
+  int i, j, len;
+
+  len = 0;
+  while (n != 0) {
+    ans[len++] = --n % 26 + 'A';
+    n /= 26;
+  }
+
   i = 0, j = len - 1;
   while (i < j) {
     int ch = ans[i];
