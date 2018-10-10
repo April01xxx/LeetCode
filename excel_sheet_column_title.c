@@ -42,9 +42,10 @@ convertToTitle(int n) {
    */
   while (n != 0) {
     r = n % 26;
-    q = n / 26;
-    ans[idx++] = MAP[r];
     n /= 26;
+    ans[idx++] = MAP[r];
+    if (r == 0)
+      n -= 1;
   }
 
   /* 将结果反转即为答案. */
