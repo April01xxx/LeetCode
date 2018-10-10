@@ -55,9 +55,9 @@ findPeakElement(int *nums, int numsSize) {
     mid = (lo + hi) / 2;
 
     /* 注意考虑边界情况,因为mid=(lo+hi)/2且lo<hi,所以mid<hi. */
-    if (a[mid] > a[mid + 1] && (mid == 0 || a[mid] > a[mid - 1]))
+    if (nums[mid] > nums[mid + 1] && (mid == 0 || nums[mid] > nums[mid - 1]))
       return mid;
-    else if (a[mid] < a[mid + 1])
+    else if (nums[mid] < nums[mid + 1])
       lo = mid + 1;
     else
       hi = mid - 1;
