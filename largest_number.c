@@ -81,3 +81,39 @@ largestNumber(int *nums, int numsSize) {
 
   return ans;
 }
+
+/**
+ * 上面的解法在排序是做了部分匹配,然后判断剩余的字符串,其实可以更近一步.
+ * 对于两个整数a,b,先将其转换为字符串as,bs,我们最终的结果是为了保证组成
+ * 的整数最大也就是说对于字符串as+bs和bs+as取两者中较大的那个.另外字符串
+ * 的比较也满足传递性.
+ */
+int
+compare(void *a, void *b) {
+  char leader_a[21] = {0}, leader_b[21] = {0};
+
+  sprintf(leader_a, "%d%d", *(int *)a, *(int *)b);
+  sprintf(leader_b, "%d%d", *(int *)b, *(int *)a);
+
+  /* 升序排列 */
+  return strcmp(leader_b, leader_a);
+}
+
+int
+largestNumber(int *nums, int numsSize) {
+  char *ans;
+  int i;
+
+  ans = calloc(10 * numsSize + 1, sizeof(char));
+
+  qsort(nums, numsSize, sizeof(int), compare);
+
+  for (i = 0; i < numsSize; ++i) {
+    sprintf(ans, "%s%d", ans, nums[i]);
+
+    if (nums[0] == 0)
+      break;
+  }
+
+  return ans;
+}
