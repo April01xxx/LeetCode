@@ -95,3 +95,39 @@ isHappy(int n) {
   else
     return false;
 }
+
+
+/**
+ * 关于快乐数在Wikipedia上有证明,如果一个数不是快乐数,那么最终的循环数中一定会
+ * 出现整数4.
+ * https://en.wikipedia.org/wiki/Happy_number
+ */
+int
+sqaureSum(int n) {
+  int sum = 0, digit;
+
+  while (n) {
+    digit = n % 10;
+    sum += digit * digit;
+    n /= 10;
+  }
+
+  return sum;
+}
+
+bool
+isHappy(int n) {
+  if (n <= 0)
+    return false;
+
+  while (1) {
+    if (n == 1)
+      return true;
+    else if (n == 4)
+      return false;
+
+    n = sqaureSum(n);
+  }
+
+  return false;
+}
