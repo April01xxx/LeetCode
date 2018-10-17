@@ -188,3 +188,68 @@ canFinish(int numCourses, int **prerequisites, int rows, int cols) {
 
   return true;
 }
+
+
+/**
+ * 上述方法在查找邻接点时每次都遍历prerequisites,这是因为题目给定的输入结构是
+ * 边的集合,我们可以将其转换为邻接表来表示.为简便起见用一个二维矩阵表示邻接表.
+ */
+int **
+graphInit(int numCourses, int **prerequisites, int rows, int cols,
+          int **colsSize) {
+  int **graph;
+  int i, j;
+
+  graph = malloc(numCourses * sizeof(int *));
+  *colsSize = calloc(numCourses, sizeof(int));
+
+  /* 总共numCourses个节点,故最多有numCourses个邻接点. */
+  for (i = 0; i < numCourses; ++i)
+    graph[i] = malloc(numCourses * sizeof(int));
+
+  for (i = 0; i < rows; ++i) {
+    int vertex = prerequisites[i][1];
+    graph[vertex][(*colsSize)[vertex]++] = prerequisites[i][0];
+  }
+
+  return graph;
+}
+
+bool
+dfs(int vertex, int *vertices, int numCourses, int **graph, int *colsSize) {
+  int i;
+
+  if (vertices[vertex] == 1)
+    return true;
+  else if (vertices[vertex] == -1)
+    return false;
+
+  vertices[vertex] = -1;
+  for (i = 0; i < colsSize[vertex]; ++i) {
+    if (!dfs(graph[vertex][i], vertices, numCourses, graph, colsSize))
+      return false;
+  }
+  vertices[vertex] = 1;
+
+  return true;
+}
+
+bool
+canFinish(int numCourses, int **prerequisites, int rows, int cols) {
+  int *vertices;
+  int i;
+  int **graph, *colsSize;
+
+  vertices = calloc(numCourses, sizeof(int));
+
+  graph = graphInit(numCourses, prerequisites, rows, cols, &colsSize);
+
+  for (i = 0; i < numCourses; ++i) {
+    if (vertices[i] == 1)
+      continue;
+    if (!dfs(i, vertices, numCourses, graph, colsSize))
+      return false;
+  }
+
+  return true;
+}
