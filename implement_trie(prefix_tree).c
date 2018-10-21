@@ -116,8 +116,11 @@ void trieFree(Trie* obj) {
  *
  * 下面的代码在LeetCode上无法AC,错误提示是realloc报错,估计又是哪个
  * 地方指针使用有BUG.
+ *
+ * 终于AC了,速度也有了提升.如果将数组改为链表的话,能进一步压缩空间,
+ * 不过懒得实现了.
  */
-typedef struct Trie {
+typedef struct {
   char *key;
   bool isWord;
   struct Trie *next[26];
@@ -139,13 +142,15 @@ Trie* trieCreate() {
 
 /** Inserts a word into the trie. */
 void trieInsert(Trie* obj, char* word) {
-  int idx, len1, len2;
+  int idx;
   Trie *node;
 
   node = obj;
   while (node) {
-    if (strlen(word) == 0)
+    if (strlen(word) == 0) {
+      node->isWord = true;
       return;
+    }
     idx = *word - 'a';
 
     if (node->next[idx] == NULL)
@@ -158,23 +163,21 @@ void trieInsert(Trie* obj, char* word) {
       ++word;
     }
 
-    if (*sptr == 0 && *word == 0) {
-      node->isWord = true;
-      return;
+    if (*sptr != 0) {
+      /* 分裂. */
+      Trie *temp = trieCreate();
+      temp->key = malloc((1 + strlen(sptr)) * sizeof(char));
+      strcpy(temp->key, sptr);
+      temp->isWord = node->isWord;
+      node->isWord = false;
+      int i;
+      for (i = 0; i < 26; ++i) {
+        temp->next[i] = node->next[i];
+        node->next[i] = NULL;
+      }
+      node->next[*sptr - 'a'] = temp;
+      *sptr = 0;
     }
-    /* 分裂. */
-    Trie *temp = trieCreate();
-    temp->key = malloc((1 + strlen(sptr)) * sizeof(char));
-    strcpy(temp->key, sptr);
-    temp->isWord = node->isWord;
-    node->isWord = true;
-    int i;
-    for (i = 0; i < 26; ++i) {
-      temp->next[i] = node->next[i];
-      node->next[i] = NULL;
-    }
-    node->next[*sptr - 'a'] = temp;
-    *sptr = 0;
   }
 
   node->next[idx] = trieCreate();
