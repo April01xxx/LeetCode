@@ -43,3 +43,15 @@ minSubArrayLen(int s, int *nums, int numsSize) {
 
   return min_len == INT_MAX ? 0 : min_len;
 }
+
+/**
+ * 想了半天没想到O(nlogn)的解法咋实现,贴上LeetCode的解法的思路.
+ * 大致想法是这样:
+ * 1. 遍历每个元素,以当前元素为子数组的起始元素,寻找最短子数组,
+ *    此时算法的时间复杂度是O(n^2).
+ * 2. 通过一个额外的数组sum[i]来记录子数组a[0,i-1]的累加和,这
+ *    这时候在sum数组中查找大于等于s+sum[i]的第一个元素的位置.
+ *    注意到sum数组的递增的,查找可以采用二分查找(binary search),
+ *    每次查找的时间复杂度是O(logn).外层循环迭代n次,故整个算法的
+ *    时间复杂度是O(nlogn).
+ */
