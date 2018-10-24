@@ -160,3 +160,103 @@ findWords(char **board, int rows, int cols, char **words, int wordsSize,
 
   return ans;
 }
+
+
+/**
+ * 看了下LeetCode的讨论区,发现自己的经验还是太少了.
+ * 关于图(graph)和字典树(trie)的应用场景没有很好的认知.
+ * 这题在写上面的解法的时候就发现问题了,对于每个单词都要
+ * 将board全部扫描一次,另外为了去除重复,用了hashset,但
+ * 很容易观察到,有些字母是没必要扫描的.
+ *
+ * 基于以上这些原因,字典树trie成为解决本题非常合适的数据
+ * 结构.将words中的所有单词组成一棵字典树,由于给定的字母
+ * 表是单个字符的形式,这里的字典树每个节点存储一个字符,同
+ * 时用一个变量表示是否单词.
+ */
+typedef struct Trie *Trie;
+struct Trie {
+  bool isEnd;
+  char *word;
+  struct Trie *next[26];
+};
+
+Trie
+trieCreate() {
+  Trie t;
+  int i;
+
+  t = malloc(sizeof(struct Trie));
+  t->isEnd = false;
+  t->word = NULL;
+  for (i = 0; i < 26; ++i)
+    t->next[i] = NULL;
+
+  return t;
+}
+
+void
+trieInsert(Trie t, char *word) {
+  int idx;
+  char *sptr;
+
+  sptr = word;
+  while (*sptr) {
+    idx = *sptr - 'a';
+    if (t->next[idx] == NULL)
+      t->next[idx] = trieCreate();
+    t = t->next[idx];
+    ++sptr;
+  }
+  t->isEnd = true;
+  t->word = word;
+}
+
+void
+dfs(char **board, int rows, int cols, int i, int j, Trie t, char ***ans,
+    int *returnSize) {
+  int ch = board[i][j];
+
+  if (ch == 0 || t->next[ch - 'a'] == NULL)
+    return;
+  t = t->next[ch - 'a'];
+  if (t->isEnd) {
+    (*ans)[(*returnSize)++] = t->word;
+    t->isEnd = false;
+    t->word = NULL;
+  }
+
+  board[i][j] = 0;
+  if (i > 0)
+    dfs(board, rows, cols, i - 1, j, t, ans, returnSize);
+  if (i < rows - 1)
+    dfs(board, rows, cols, i + 1, j, t, ans, returnSize);
+  if (j > 0)
+    dfs(board, rows, cols, i, j - 1, t, ans, returnSize);
+  if (j < cols - 1)
+    dfs(board, rows, cols, i, j + 1, t, ans, returnSize);
+  board[i][j] = ch;
+}
+
+char **
+findWords(char **board, int rows, int cols, char **words, int wordsSize,
+          int *returnSize) {
+  char **ans;
+  int i, j;
+  Trie t;
+
+  t = trieCreate();
+  for (i = 0; i < wordsSize; ++i)
+    trieInsert(t, words[i]);
+
+  *returnSize = 0;
+  ans = malloc(wordsSize * sizeof(char *));
+
+  for (i = 0; i < rows; ++i) {
+    for (j = 0; j < cols; ++j) {
+      dfs(board, rows, cols, i, j, t, &ans, returnSize);
+    }
+  }
+
+  return ans;
+}
