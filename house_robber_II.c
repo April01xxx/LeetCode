@@ -65,3 +65,29 @@ rob(int *nums, int numsSize) {
 /**
  * 我们也可以将上述两次函数调用合并到一起.
  */
+int
+rob(int *nums, int numsSize) {
+  int i, first_even, first_odd, last_even, last_odd;
+
+  first_even = first_odd = last_even = last_odd = 0;
+  for (i = 0; i < numsSize; ++i) {
+    if (i == 0)
+      first_even = nums[0];
+    else if (i < numsSize - 1) {
+      if (i & 0x1) {
+        first_odd = max(first_even, first_odd + nums[i]);
+        last_odd = max(last_even, last_odd + nums[i]);
+      } else {
+        first_even = max(first_odd, first_even + nums[i]);
+        last_even = max(last_odd, last_even + nums[i]);
+      }
+    } else {
+      if (i & 0x1)
+        last_odd = max(last_even, last_odd + nums[i]);
+      else
+        last_even = max(last_odd, last_even + nums[i]);
+    }
+  }
+
+  return max(max(first_even, first_odd), max(last_even, last_odd));
+}
