@@ -230,3 +230,39 @@ maximalSquare(char **m, int rows, int cols) {
   free(dp);
   return max_edge * max_edge;
 }
+
+
+/**
+ * 最近打算把C++好好学一下,用C++实现.
+ */
+class Solution {
+public:
+  int maximalSquare(vector<vector<char>>& matrix) {
+    int max_area = 0;
+
+    if (matrix.size() == 0)
+      return max_area;
+    vector<int> heights(1 + matrix[0].size());
+
+    for (int i = 0; i < matrix.size(); ++i) {
+      stack<int> stack; /* 注意清空栈. */
+      for (int j = 0; j <= matrix[0].size(); ++j) {
+        heights[j] = j == matrix[0].size()
+                     ? 0
+                     : matrix[i][j] == '1' ? 1 + heights[j] : 0;
+
+        while (!stack.empty() && heights[j] < heights[stack.top()]) {
+          int tp = stack.top();
+          stack.pop();
+
+          int edge = min(heights[tp],
+                         stack.empty() ? j : j - stack.top() - 1);
+          max_area = max(max_area, edge * edge);
+        }
+        stack.push(j);
+      }
+    }
+
+    return max_area;
+  }
+};
