@@ -83,21 +83,17 @@ public:
 class Solution {
 public:
   int countNodes(TreeNode* root) {
-    int hl = 0, hr = 0;
+    int height = 0;
     TreeNode *left = root, *right = root;
 
-    while (left) {
-      ++hl;
-      left = left->left;
-    }
-
     while (right) {
-      ++hr;
+      ++height;
+      left = left->left;
       right = right->right;
     }
 
-    if (hl == hr)
-      return (1 << hl) - 1;
+    if (!left)
+      return (1 << height) - 1;
     else
       return 1 + countNodes(root->left) + countNodes(root->right);
   }
