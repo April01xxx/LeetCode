@@ -43,11 +43,8 @@ public:
       return NULL;
 
     node = root->left;
-    root->left = root->right;
-    root->right = node;
-
-    invertTree(root->left);
-    invertTree(root->right);
+    root->left = invertTree(root->right);
+    root->right = invertTree(node);
 
     return root;
   }
