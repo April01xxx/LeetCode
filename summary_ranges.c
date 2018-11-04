@@ -19,21 +19,20 @@ class Solution {
 public:
   vector<string> summaryRanges(vector<int>& nums) {
     vector<string> ans;
-    char s[20] = {0};
+    string s;
 
     if (nums.size() == 0)
       return ans;
 
     for (int i = 0; i < nums.size(); ++i) {
-      sprintf(s, "%d", nums[i]);
+      s += to_string(nums[i]);
       int j = i;
       while (i < nums.size() - 1 && nums[i] + 1 == nums[i + 1])
         ++i;
-      if (i > j) {
-        sprintf(s, "%s->%d", s, nums[i]);
-      }
+      if (i > j)
+        s += "->" + to_string(nums[i]);
       ans.push_back(s);
-      memset(s, 0, 20);
+      s.clear();
     }
     return ans;
   }
