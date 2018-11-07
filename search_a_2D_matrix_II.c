@@ -67,3 +67,24 @@ public:
  *    故row=row+1,跳转到步骤2;
  * 5. 循环结束条件是row==m或者n==-1.
  */
+class Solution {
+public:
+  bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    int row, col;
+
+    if (matrix.empty() || matrix[0].empty())
+      return false;
+
+    row = 0, col = matrix[0].size() - 1;
+    while (row < matrix.size() && col >= 0) {
+      if (matrix[row][col] == target)
+        return true;
+      else if (matrix[row][col] > target)
+        --col;
+      else
+        ++row;
+    }
+
+    return false;
+  }
+};
