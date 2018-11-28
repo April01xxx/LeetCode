@@ -44,7 +44,7 @@
  * 处理'b'重复的情况.这是一种后来反而要先处理的情况,故用栈来维护这些重复的字符.
  *
  * 发现自己把问题想复杂了,最开始看到问题的时候思路是对的,后面把自己绕进去了.
- * 
+ *
  * 大致的想法就是遍历字符串,如果发现当前的字符比前面的要小,此时有可能形成一个
  * 字典序更小的字符串(贪心),但如何确定是否存在这样的字符串呢?除非前面的字符
  * 在后面再次出现,这样就可以保留后面的删掉前面的.基于以上分析,我们需要统计原
@@ -68,16 +68,22 @@ public:
 
             /* 遇到更小的字符且前面一个字符在后面会再次出现则说明可以通过
              * 删除前面重复的字符形成字典序更小的字符串. */
-            while (stack.size() && stack.top() > c && count[c - 'a'] > 0) {
-                stack.pop();
+            while (stack.size() && stack.top() > c
+                    && count[stack.top() - 'a'] > 0) {
                 // 注意要将该字符标记为未出现.
-                visited[c - 'a'] = false;
+                visited[stack.top() - 'a'] = false;
+                stack.pop();
             }
             stack.push(c);
             visited[c - 'a'] = true;
         }
+
         string ans;
-        while (stack.size())
-            ans[stack.size() - 1] = sta
+        while (stack.size()) {
+            ans.push_back(stack.top());
+            stack.pop();
+        }
+        reverse(ans.begin(), ans.end());
+        return ans;
     }
 };
